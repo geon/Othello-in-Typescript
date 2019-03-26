@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "tape --require ts-node/register \"test/**/*.ts\" | tap-spec",
-    "start": "webpack-dev-server -d"
+    "start": "webpack-dev-server -d",
+    "build:clean": "rm -rf dist",
+		"build":
+			"npm run build:clean && webpack-cli --mode production --optimize-minimize && cp src/index.html dist/",
+		"publish": "npm run build && publish.sh"
   },
   "author": "",
   "license": "ISC",
