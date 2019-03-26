@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "tape --require ts-node/register \"test/**/*.ts\" | tap-spec",
-    "start": "ts-node src/othello"
+    "start": "webpack-dev-server -d"
   },
   "author": "",
   "license": "ISC",
@@ -14,8 +14,11 @@
     "@types/tape": "^4.2.33",
     "tap-spec": "^5.0.0",
     "tape": "^4.9.2",
-    "ts-node": "^8.0.2",
-    "typescript": "^3.3.1"
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.3.1",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0",
+    "webpack-dev-server": "^3.2.1"
   },
   "prettier": {
     "useTabs": true,
