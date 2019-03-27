@@ -26,12 +26,12 @@ function printBoard(
 
 	const status = document.createElement("p");
 	status.innerText =
-		"X:" +
+		"black: " +
 		pl1count +
-		", O:" +
+		", white: " +
 		pl2count +
 		", player: " +
-		(player == 1 ? "X" : "O");
+		(player == 1 ? "black" : "white");
 
 	const tbody = document.createElement("table");
 	for (let y = 0; y < 8; y++) {
@@ -44,12 +44,16 @@ function printBoard(
 			button.style.width = "2em";
 			button.style.height = "2em";
 			if (y == ypos && x == xpos) {
-				button.style.backgroundColor = "palevioletred";
+				button.innerText = "X";
 			}
 
-			if (board[x + y * 8] == 1) button.innerText = "X";
-			else if (board[x + y * 8] == -1) button.innerText = "O";
-			else button.innerHTML = "&nbsp;";
+			if (board[x + y * 8] == 1) {
+				button.style.backgroundColor = "black";
+			} else if (board[x + y * 8] == -1) {
+				button.style.backgroundColor = "white";
+			} else {
+				button.style.backgroundColor = "#292";
+			}
 
 			const td = document.createElement("td");
 			td.appendChild(button);
