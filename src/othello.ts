@@ -29,18 +29,18 @@ export function moveIsLegal(
 ): boolean {
 	if (board[position]) return false; // we may only put pieces in empty squares.
 
-	for (let direction = 0; direction < 8; direction++) {
+	for (const offSet of offSets) {
 		// test every direction.
-		if (!stepIsLegal(position, offSets[direction])) continue; // skip this direction if one may not step there.
-		let currentPosition = position + offSets[direction]; // start steping one square from position.
+		if (!stepIsLegal(position, offSet)) continue; // skip this direction if one may not step there.
+		let currentPosition = position + offSet; // start steping one square from position.
 		let stepsMoved = 0;
 
 		while (
 			board[currentPosition] == -player &&
-			stepIsLegal(currentPosition, offSets[direction])
+			stepIsLegal(currentPosition, offSet)
 		) {
 			// take a step in direction as long as it is legal (we may not step out of the board) and the pices belongs to opponent (-player).
-			currentPosition += offSets[direction]; // step to the next square in direction.
+			currentPosition += offSet; // step to the next square in direction.
 			stepsMoved++;
 		}
 		if (stepsMoved > 0 && board[currentPosition] == player) return true; // if this is true, we have found a comlete row.
