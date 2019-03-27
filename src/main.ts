@@ -97,10 +97,10 @@ async function main(): Promise<void> {
 
 				if (moveIsLegal(userMove, board, player)) {
 					board = move(userMove, board, player);
+					player = -player;
 					printBoard(board, userMove, player);
 					// Let the printed board render.
 					await new Promise(resolve => setTimeout(resolve, 200));
-					player = -player;
 				} else {
 					userClick = new Promise(resolve => (userClickResolver = resolve));
 					printBoard(board, -1, player, userClickResolver);
@@ -110,8 +110,8 @@ async function main(): Promise<void> {
 				const aiMove = getBestMove(board, player);
 				board = move(aiMove, board, player);
 				userClick = new Promise(resolve => (userClickResolver = resolve));
-				printBoard(board, aiMove, player, userClickResolver);
 				player = -player;
+				printBoard(board, aiMove, player, userClickResolver);
 			}
 		} else {
 			player = -player;
