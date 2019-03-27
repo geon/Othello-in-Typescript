@@ -190,13 +190,15 @@ export function move(position: number, board: Board, player: number): Board {
 	newBoard[position] = player;
 
 	for (const offSet of offSets) {
+		// Skip this direction if one may not step there.
 		if (!stepIsLegal(position, offSet)) {
-			// Skip this direction if one may not step there.
 			continue;
 		}
-		let currentPosition = position + offSet; // Start steping one square from position.
-		let stepsMoved = 0;
 
+		// Start steping one square from position.
+		let currentPosition = position + offSet;
+
+		let stepsMoved = 0;
 		while (
 			newBoard[currentPosition] == -player &&
 			stepIsLegal(currentPosition, offSet)
@@ -204,6 +206,7 @@ export function move(position: number, board: Board, player: number): Board {
 			currentPosition += offSet;
 			stepsMoved++;
 		}
+
 		// If we found a row:
 		if (stepsMoved > 0 && newBoard[currentPosition] == player) {
 			// Flip
