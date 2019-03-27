@@ -110,7 +110,9 @@ export function getBestMove(
 		if (!moveListOpponent) {
 			throw new Error("Bug! The code does not handle this.");
 		}
-		score = -miniMax(newBoard, -player, moveListOpponent, smartness);
+		score = -getBestScore(
+			miniMax(newBoard, -player, moveListOpponent, smartness),
+		);
 
 		if (score > bestScore) {
 			bestScore = score;
@@ -121,26 +123,21 @@ export function getBestMove(
 	return bestMove;
 }
 
-// TODO: Return ReadonlyArray<{move: number, score: number}>. and remove getBestMove.
 function miniMax(
 	board: Board,
 	player: number,
 	moveListPlayer: number[],
 	searchDepth: number,
-): number {
-	// Try the moves and return the best score.
-	let bestScore = -Infinity;
-	for (const movePosition of moveListPlayer) {
+): ReadonlyArray<{ move: number; score: number }> {
+	// Try the moves and score them.
+	return moveListPlayer.map(movePosition => {
 		const newBoard = move(movePosition, board, player);
-
 		const score = evaluateBoard(newBoard, player, searchDepth);
-
-		if (score > bestScore) {
-			bestScore = score;
-		}
-	}
-
-	return bestScore;
+		return {
+			move: movePosition,
+			score,
+		};
+	});
 }
 
 function evaluateBoard(
@@ -162,14 +159,18 @@ function evaluateBoard(
 
 	if (moveListOpponent) {
 		// Switch player.
-		return -miniMax(board, -player, moveListOpponent, searchDepth - 1);
+		return -getBestScore(
+			miniMax(board, -player, moveListOpponent, searchDepth - 1),
+		);
 	}
 
 	// The opponent has no legal moves, so don't switch player.
 	const moveListPlayer = getLegalMoves(board, -player);
 	if (moveListPlayer) {
 		// The player can move again.
-		return miniMax(board, player, moveListPlayer, searchDepth - 1);
+		return getBestScore(
+			miniMax(board, player, moveListPlayer, searchDepth - 1),
+		);
 	}
 
 	// Noone can move. Game over.
@@ -192,6 +193,12 @@ function evaluateBoard(
 	} else {
 		return 0;
 	}
+}
+
+function getBestScore(
+	scoredMoves: ReadonlyArray<{ move: number; score: number }>,
+): number {
+	return Math.max(...scoredMoves.map(scoredMove => scoredMove.score));
 }
 
 //  The heuristicScores-values describes how valuable the pieces on these positions are.
