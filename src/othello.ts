@@ -10,13 +10,20 @@ export type Board = ReadonlyArray<number>;
 // Offsets for the 8 directions. upp-left, upp, upp-right, ..., down-right. The order doesn't really matter.
 const offSets = [-9, -8, -7, -1, 1, 7, 8, 9];
 
-export function getLegalMoves(board: Board, player: number): number[] {
+export function getLegalMoves(
+	board: Board,
+	player: number,
+): number[] | undefined {
 	// Loop through all squares to find legal moves and add them to the list.
 	const legalMoves = [];
 	for (let i = 0; i <= 63; i++) {
 		if (moveIsLegal(i, board, player)) {
 			legalMoves.push(i);
 		}
+	}
+
+	if (!legalMoves.length) {
+		return undefined;
 	}
 
 	return legalMoves;
@@ -91,7 +98,7 @@ export function getBestMove(
 	// 0 = easy, 1 = normal, 3 = hard, 4 = very hard.
 	smartness: number = 4,
 ): number {
-	const legalMoves = getLegalMoves(board, player);
+	const legalMoves = getLegalMoves(board, player)!;
 
 	let score = -Infinity;
 	let bestScore = -Infinity;
@@ -115,7 +122,7 @@ function miniMax(board: Board, player: number, searchDepth: number): number {
 	const moveListOpponent = getLegalMoves(board, -player);
 
 	const moveListPlayer = getLegalMoves(board, player);
-	if (moveListPlayer.length) {
+	if (moveListPlayer) {
 		// Try the moves and return the best score.
 		let bestScore = -Infinity;
 		for (const movePosition of moveListPlayer) {
@@ -126,7 +133,7 @@ function miniMax(board: Board, player: number, searchDepth: number): number {
 					? -miniMax(newBoard, -player, searchDepth - 1)
 					: heuristicScore(newBoard, player) +
 					  moveListPlayer.length -
-					  moveListOpponent.length;
+					  (moveListOpponent ? moveListOpponent.length : 0);
 
 			if (score > bestScore) {
 				bestScore = score;
@@ -137,7 +144,7 @@ function miniMax(board: Board, player: number, searchDepth: number): number {
 	}
 
 	// Check for game over.
-	if (!moveListOpponent.length) {
+	if (!moveListOpponent) {
 		// Count the pieces.
 		let playerCount = 0;
 		let opponentCount = 0;

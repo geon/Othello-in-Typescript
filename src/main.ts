@@ -91,7 +91,7 @@ async function main(): Promise<void> {
 
 	for (;;) {
 		const moveList = getLegalMoves(board, player);
-		if (moveList.length) {
+		if (moveList) {
 			if (player == 1) {
 				const userMove = await userClick;
 
@@ -116,7 +116,7 @@ async function main(): Promise<void> {
 		} else {
 			player = -player;
 			const moveList = getLegalMoves(board, player);
-			if (!moveList.length) {
+			if (!moveList) {
 				printBoard(board, -1, player);
 				alert("game over");
 				break;
