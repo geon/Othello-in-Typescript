@@ -9,9 +9,6 @@ export type Board = ReadonlyArray<number>;
 //  the heuristicScores-values describes how valuable the pieces on theese positions are.
 //  you might want to change theese to tweak the aI.
 
-// definies the "smartness" of the aI. 0 = easy, 1 = normal, 3 = hard, 4 = very hard.
-const smartness = 4;
-
 // defining the heuristic score for each square.
 const heuristicScores = [
 	...[8, -4, 6, 4, 4, 6, -4, 8],
@@ -82,7 +79,12 @@ function stepIsLegal(position: number, offSet: number): boolean {
 	return true;
 }
 
-export function getBestMove(board: Board, player: number): number {
+export function getBestMove(
+	board: Board,
+	player: number,
+	// 0 = easy, 1 = normal, 3 = hard, 4 = very hard.
+	smartness: number = 4,
+): number {
 	const legalMoves = getLegalMoves(board, player);
 
 	let score = -Infinity;
