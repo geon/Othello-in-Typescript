@@ -1,17 +1,17 @@
 export type Board = ReadonlyArray<number>;
 
-// list-format:
-//  every list is a number[64] where the first element tells how long the list is.
-//  for example, the first list generated will be: {4, 19, 29, 34, 44, ... }, where the rest of the list is irrelevant.
+// List-format:
+//  Every list is a number[64] where the first element tells how long the list is.
+//  For example, the first list generated will be: {4, 19, 29, 34, 44, ... }, where the rest of the list is irrelevant.
 
-// player-format & the heuristicScores-values:
-//  the number's named player can only be 1 or -1. to switch player I use a unary minus.
+// Player-format & the heuristicScores-values:
+//  The number's named player can only be 1 or -1. to switch player I use a unary minus.
 
-// defining offsets for the 8 directions. upp-left, upp, upp-right, ..., down-right. the order doesn't really matter.
+// Offsets for the 8 directions. upp-left, upp, upp-right, ..., down-right. The order doesn't really matter.
 const offSets = [-9, -8, -7, -1, 1, 7, 8, 9];
 
 export function getLegalMoves(board: Board, player: number): number[] {
-	// loop through all squares to find legal moves and add them to the list.
+	// Loop through all squares to find legal moves and add them to the list.
 	const legalMoves = [];
 	for (let i = 0; i <= 63; i++) {
 		if (moveIsLegal(i, board, player)) {
@@ -27,37 +27,37 @@ export function moveIsLegal(
 	board: Board,
 	player: number,
 ): boolean {
-	// we may only put pieces in empty squares.
+	// We may only put pieces in empty squares.
 	if (board[position]) {
 		return false;
 	}
 
 	for (const offSet of offSets) {
-		// test every direction.
-		if (!stepIsLegal(position, offSet)) continue; // skip this direction if one may not step there.
-		let currentPosition = position + offSet; // start steping one square from position.
+		// Test every direction.
+		if (!stepIsLegal(position, offSet)) continue; // Skip this direction if one may not step there.
+		let currentPosition = position + offSet; // Start steping one square from position.
 		let stepsMoved = 0;
 
 		while (
 			board[currentPosition] == -player &&
 			stepIsLegal(currentPosition, offSet)
 		) {
-			// take a step in direction as long as it is legal (we may not step out of the board) and the pices belongs to opponent (-player).
-			currentPosition += offSet; // step to the next square in direction.
+			// Take a step in direction as long as it is legal (we may not step out of the board) and the pices belongs to opponent (-player).
+			currentPosition += offSet; // Step to the next square in direction.
 			stepsMoved++;
 		}
 
 		if (stepsMoved > 0 && board[currentPosition] == player) {
-			// we have found a comlete row.
+			// We have found a comlete row.
 			return true;
 		}
 	}
 
-	return false; // if no legal move is found in either direction, this move is illegal.
+	return false; // If no legal move is found in either direction, this move is illegal.
 }
 
 function stepIsLegal(position: number, offSet: number): boolean {
-	// take care of left, ...
+	// Take care of left, ...
 	if (position % 8 == 0 && (offSet == -9 || offSet == -1 || offSet == 7)) {
 		return false;
 	}
@@ -74,7 +74,7 @@ function stepIsLegal(position: number, offSet: number): boolean {
 		return false;
 	}
 
-	// the step is not illegal, return true.
+	// The step is not illegal, return true.
 	return true;
 }
 
@@ -105,11 +105,11 @@ export function getBestMove(
 }
 
 function miniMax(board: Board, player: number, searchDepth: number): number {
-	// check for game over.
+	// Check for game over.
 	const moveListPlayer = getLegalMoves(board, player);
 	const moveListOpponent = getLegalMoves(board, -player);
 	if (!moveListPlayer.length && !moveListOpponent.length) {
-		// count the pieces.
+		// Count the pieces.
 		let playerCount = 0;
 		let opponentCount = 0;
 		for (const piece of board) {
@@ -119,7 +119,7 @@ function miniMax(board: Board, player: number, searchDepth: number): number {
 				opponentCount++;
 			}
 		}
-		// reward the winner.
+		// Reward the winner.
 		if (playerCount > opponentCount) {
 			return Infinity;
 		} else if (playerCount < opponentCount) {
@@ -129,12 +129,12 @@ function miniMax(board: Board, player: number, searchDepth: number): number {
 		}
 	}
 
-	// switch player if player has no moves.
+	// Switch player if player has no moves.
 	if (!moveListPlayer.length) {
 		return miniMax(board, -player, searchDepth);
 	}
 
-	// try the moves and return the best score.
+	// Try the moves and return the best score.
 	let bestScore = -Infinity;
 	for (const movePosition of moveListPlayer) {
 		const newBoard = move(movePosition, board, player);
@@ -169,7 +169,7 @@ const heuristicScores = [
 function heuristicScore(board: Board, player: number): number {
 	let score = 0;
 
-	// reward the player if he has more (weighted) pieces than the opponent.
+	// Reward the player if he has more (weighted) pieces than the opponent.
 	for (let i = 0; i < 64; ++i) {
 		score += heuristicScores[i] * player * board[i];
 	}
@@ -177,17 +177,17 @@ function heuristicScore(board: Board, player: number): number {
 	return score;
 }
 
-// make shure you mAY move before you call this function.
+// Make shure you mAY move before you call this function.
 export function move(position: number, board: Board, player: number): Board {
 	const newBoard = [...board];
 	newBoard[position] = player;
 
 	for (const offSet of offSets) {
 		if (!stepIsLegal(position, offSet)) {
-			// skip this direction if one may not step there.
+			// Skip this direction if one may not step there.
 			continue;
 		}
-		let currentPosition = position + offSet; // start steping one square from position.
+		let currentPosition = position + offSet; // Start steping one square from position.
 		let stepsMoved = 0;
 
 		while (
@@ -197,9 +197,9 @@ export function move(position: number, board: Board, player: number): Board {
 			currentPosition += offSet;
 			stepsMoved++;
 		}
-		// if we found a row:
+		// If we found a row:
 		if (stepsMoved > 0 && newBoard[currentPosition] == player) {
-			// flip
+			// Flip
 			for (; stepsMoved > 0; stepsMoved--) {
 				currentPosition -= offSet;
 				newBoard[currentPosition] = player;
