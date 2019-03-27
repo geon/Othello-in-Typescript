@@ -39,15 +39,17 @@ export function moveIsLegal(
 			continue;
 		}
 
-		let currentPosition = position + offSet; // Start steping one square from position.
+		// Start steping one square from position.
+		let currentPosition = position + offSet;
 		let stepsMoved = 0;
 
+		// Take a step in direction as long as it is legal (we may not step out of the board) and the pices belongs to opponent (-player).
 		while (
 			board[currentPosition] == -player &&
 			stepIsLegal(currentPosition, offSet)
 		) {
-			// Take a step in direction as long as it is legal (we may not step out of the board) and the pices belongs to opponent (-player).
-			currentPosition += offSet; // Step to the next square in direction.
+			// Step to the next square in direction.
+			currentPosition += offSet;
 			stepsMoved++;
 		}
 
@@ -57,7 +59,8 @@ export function moveIsLegal(
 		}
 	}
 
-	return false; // If no legal move is found in either direction, this move is illegal.
+	// If no legal move is found in either direction, this move is illegal.
+	return false;
 }
 
 function stepIsLegal(position: number, offSet: number): boolean {
