@@ -99,24 +99,13 @@ export function getBestMove(
 	legalMoves: number[],
 	smartness: number = 4,
 ): number {
-	let score = -Infinity;
 	let bestScore = -Infinity;
 	let bestMove = legalMoves[0];
 
-	for (const legalMove of legalMoves) {
-		const newBoard = move(legalMove, board, player);
-
-		const moveListOpponent = getLegalMoves(board, -player);
-		if (!moveListOpponent) {
-			throw new Error("Bug! The code does not handle this.");
-		}
-		score = -getBestScore(
-			miniMax(newBoard, -player, moveListOpponent, smartness),
-		);
-
-		if (score > bestScore) {
-			bestScore = score;
-			bestMove = legalMove;
+	for (const scoredMove of miniMax(board, player, legalMoves, smartness)) {
+		if (scoredMove.score > bestScore) {
+			bestScore = scoredMove.score;
+			bestMove = scoredMove.move;
 		}
 	}
 
