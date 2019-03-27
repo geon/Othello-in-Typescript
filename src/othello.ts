@@ -34,7 +34,11 @@ export function moveIsLegal(
 
 	// Test every direction.
 	for (const offSet of offSets) {
-		if (!stepIsLegal(position, offSet)) continue; // Skip this direction if one may not step there.
+		if (!stepIsLegal(position, offSet)) {
+			// Skip this direction if one may not step there.
+			continue;
+		}
+
 		let currentPosition = position + offSet; // Start steping one square from position.
 		let stepsMoved = 0;
 
