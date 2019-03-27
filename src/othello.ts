@@ -27,7 +27,10 @@ export function moveIsLegal(
 	board: Board,
 	player: number,
 ): boolean {
-	if (board[position]) return false; // we may only put pieces in empty squares.
+	// we may only put pieces in empty squares.
+	if (board[position]) {
+		return false;
+	}
 
 	for (const offSet of offSets) {
 		// test every direction.
@@ -43,7 +46,11 @@ export function moveIsLegal(
 			currentPosition += offSet; // step to the next square in direction.
 			stepsMoved++;
 		}
-		if (stepsMoved > 0 && board[currentPosition] == player) return true; // if this is true, we have found a comlete row.
+
+		if (stepsMoved > 0 && board[currentPosition] == player) {
+			// we have found a comlete row.
+			return true;
+		}
 	}
 
 	return false; // if no legal move is found in either direction, this move is illegal.
@@ -51,15 +58,21 @@ export function moveIsLegal(
 
 function stepIsLegal(position: number, offSet: number): boolean {
 	// take care of left, ...
-	if (position % 8 == 0 && (offSet == -9 || offSet == -1 || offSet == 7))
+	if (position % 8 == 0 && (offSet == -9 || offSet == -1 || offSet == 7)) {
 		return false;
+	}
 	// ... right, ...
-	if (position % 8 == 7 && (offSet == -7 || offSet == 1 || offSet == 9))
+	if (position % 8 == 7 && (offSet == -7 || offSet == 1 || offSet == 9)) {
 		return false;
+	}
 	// ... upper, ...
-	if (Math.floor(position / 8) == 0 && offSet < 0 && offSet != -1) return false;
+	if (Math.floor(position / 8) == 0 && offSet < 0 && offSet != -1) {
+		return false;
+	}
 	// ... and lower edge.
-	if (Math.floor(position / 8) == 7 && offSet > 0 && offSet != 1) return false;
+	if (Math.floor(position / 8) == 7 && offSet > 0 && offSet != 1) {
+		return false;
+	}
 
 	// the step is not illegal, return true.
 	return true;
