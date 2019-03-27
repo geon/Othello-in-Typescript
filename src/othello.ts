@@ -248,3 +248,14 @@ export function move(position: number, board: Board, player: number): Board {
 
 	return newBoard;
 }
+
+export const startBoard: Board = [
+	...[0, 0, 0, 0, 0, 0, 0, 0],
+	...[0, 0, 0, 0, 0, 0, 0, 0],
+	...[0, 0, 0, 0, 0, 0, 0, 0],
+	...[0, 0, 0, -1, 1, 0, 0, 0],
+	...[0, 0, 0, 1, -1, 0, 0, 0],
+	...[0, 0, 0, 0, 0, 0, 0, 0],
+	...[0, 0, 0, 0, 0, 0, 0, 0],
+	...[0, 0, 0, 0, 0, 0, 0, 0],
+];

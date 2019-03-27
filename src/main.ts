@@ -4,6 +4,7 @@ import {
 	getBestMove,
 	move,
 	Board,
+	startBoard,
 } from "./othello";
 
 function printBoard(
@@ -74,16 +75,7 @@ function printBoard(
 
 async function main(): Promise<void> {
 	let player = 1;
-	let board: Board = [
-		...[0, 0, 0, 0, 0, 0, 0, 0],
-		...[0, 0, 0, 0, 0, 0, 0, 0],
-		...[0, 0, 0, 0, 0, 0, 0, 0],
-		...[0, 0, 0, -1, 1, 0, 0, 0],
-		...[0, 0, 0, 1, -1, 0, 0, 0],
-		...[0, 0, 0, 0, 0, 0, 0, 0],
-		...[0, 0, 0, 0, 0, 0, 0, 0],
-		...[0, 0, 0, 0, 0, 0, 0, 0],
-	];
+	let board: Board = startBoard;
 
 	let userClickResolver!: (move: number) => void;
 	let userClick = new Promise<number>(resolve => (userClickResolver = resolve));
