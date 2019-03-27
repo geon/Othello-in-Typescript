@@ -184,7 +184,7 @@ function heuristicScore(board: Board, player: number): number {
 	return score;
 }
 
-// Make shure you mAY move before you call this function.
+// Make shure you MAY move before you call this function.
 export function move(position: number, board: Board, player: number): Board {
 	const newBoard = [...board];
 	newBoard[position] = player;
