@@ -6,20 +6,6 @@ export type Board = ReadonlyArray<number>;
 
 // player-format & the heuristicScores-values:
 //  the number's named player can only be 1 or -1. to switch player I use a unary minus.
-//  the heuristicScores-values describes how valuable the pieces on theese positions are.
-//  you might want to change theese to tweak the aI.
-
-// defining the heuristic score for each square.
-const heuristicScores = [
-	...[8, -4, 6, 4, 4, 6, -4, 8],
-	...[-4, -4, 0, 0, 0, 0, -4, -4],
-	...[6, 0, 2, 2, 2, 2, 0, 6],
-	...[4, 0, 2, 1, 1, 2, 0, 4],
-	...[4, 0, 2, 1, 1, 2, 0, 4],
-	...[6, 0, 2, 2, 2, 2, 0, 6],
-	...[-4, -4, 0, 0, 0, 0, -4, -4],
-	...[8, -4, 6, 4, 4, 6, -4, 8],
-];
 
 // defining offsets for the 8 directions. upp-left, upp, upp-right, ..., down-right. the order doesn't really matter.
 const offSets = [-9, -8, -7, -1, 1, 7, 8, 9];
@@ -154,6 +140,18 @@ function miniMax(board: Board, player: number, searchDepth: number): number {
 
 	return bestScore;
 }
+
+//  The heuristicScores-values describes how valuable the pieces on these positions are.
+const heuristicScores = [
+	...[8, -4, 6, 4, 4, 6, -4, 8],
+	...[-4, -4, 0, 0, 0, 0, -4, -4],
+	...[6, 0, 2, 2, 2, 2, 0, 6],
+	...[4, 0, 2, 1, 1, 2, 0, 4],
+	...[4, 0, 2, 1, 1, 2, 0, 4],
+	...[6, 0, 2, 2, 2, 2, 0, 6],
+	...[-4, -4, 0, 0, 0, 0, -4, -4],
+	...[8, -4, 6, 4, 4, 6, -4, 8],
+];
 
 function heuristicScore(board: Board, player: number): number {
 	let score = 0;
