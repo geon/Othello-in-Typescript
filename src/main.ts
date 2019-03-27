@@ -107,7 +107,7 @@ async function main(): Promise<void> {
 				}
 			} else {
 				// AI
-				const aiMove = getBestMove(board, player);
+				const aiMove = getBestMove(board, player, moveList);
 				board = move(aiMove, board, player);
 				userClick = new Promise(resolve => (userClickResolver = resolve));
 				player = -player;

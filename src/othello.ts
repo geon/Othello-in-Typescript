@@ -96,10 +96,9 @@ export function getBestMove(
 	board: Board,
 	player: number,
 	// 0 = easy, 1 = normal, 3 = hard, 4 = very hard.
+	legalMoves: number[],
 	smartness: number = 4,
 ): number {
-	const legalMoves = getLegalMoves(board, player)!;
-
 	let score = -Infinity;
 	let bestScore = -Infinity;
 	let bestMove = legalMoves[0];
@@ -107,7 +106,11 @@ export function getBestMove(
 	for (const legalMove of legalMoves) {
 		const newBoard = move(legalMove, board, player);
 
-		score = -miniMax(newBoard, -player, smartness);
+		const moveListOpponent = getLegalMoves(board, -player);
+		if (!moveListOpponent) {
+			throw new Error("Bug! The code does not handle this.");
+		}
+		score = -miniMax(newBoard, -player, moveListOpponent, smartness);
 
 		if (score > bestScore) {
 			bestScore = score;
@@ -118,55 +121,68 @@ export function getBestMove(
 	return bestMove;
 }
 
-function miniMax(board: Board, player: number, searchDepth: number): number {
-	const moveListOpponent = getLegalMoves(board, -player);
+// TODO: Return ReadonlyArray<{move: number, score: number}>. and remove getBestMove.
+function miniMax(
+	board: Board,
+	player: number,
+	moveListPlayer: number[],
+	searchDepth: number,
+): number {
+	// Try the moves and return the best score.
+	let bestScore = -Infinity;
+	for (const movePosition of moveListPlayer) {
+		const newBoard = move(movePosition, board, player);
 
-	const moveListPlayer = getLegalMoves(board, player);
-	if (moveListPlayer) {
-		// Try the moves and return the best score.
-		let bestScore = -Infinity;
-		for (const movePosition of moveListPlayer) {
-			const newBoard = move(movePosition, board, player);
+		const moveListOpponent = getLegalMoves(board, -player);
 
-			const score =
-				searchDepth > 0
-					? -miniMax(newBoard, -player, searchDepth - 1)
-					: heuristicScore(newBoard, player) +
-					  moveListPlayer.length -
-					  (moveListOpponent ? moveListOpponent.length : 0);
-
-			if (score > bestScore) {
-				bestScore = score;
-			}
-		}
-
-		return bestScore;
-	}
-
-	// Check for game over.
-	if (!moveListOpponent) {
-		// Count the pieces.
-		let playerCount = 0;
-		let opponentCount = 0;
-		for (const piece of board) {
-			if (piece == player) {
-				playerCount++;
-			} else if (piece == -player) {
-				opponentCount++;
-			}
-		}
-		// Reward the winner.
-		if (playerCount > opponentCount) {
-			return Infinity;
-		} else if (playerCount < opponentCount) {
-			return -Infinity;
+		let score: number;
+		if (searchDepth <= 1) {
+			// The max depth is reached. Use simple heuristics.
+			score =
+				heuristicScore(newBoard, player) +
+				moveListPlayer.length -
+				(moveListOpponent ? moveListOpponent.length : 0);
 		} else {
-			return 0;
+			if (moveListOpponent) {
+				// Switch player.
+				score = -miniMax(newBoard, -player, moveListOpponent, searchDepth - 1);
+			} else {
+				// The opponent has no legal moves, so don't switch player.
+				const newMoveListPlayer = getLegalMoves(board, -player);
+				if (newMoveListPlayer) {
+					// The player can move again.
+					score = miniMax(newBoard, player, newMoveListPlayer, searchDepth - 1);
+				} else {
+					// Noone can move. Game over.
+
+					// Count the pieces.
+					let playerCount = 0;
+					let opponentCount = 0;
+					for (const piece of board) {
+						if (piece == player) {
+							playerCount++;
+						} else if (piece == -player) {
+							opponentCount++;
+						}
+					}
+					// Reward the winner.
+					if (playerCount > opponentCount) {
+						return Infinity;
+					} else if (playerCount < opponentCount) {
+						return -Infinity;
+					} else {
+						return 0;
+					}
+				}
+			}
+		}
+
+		if (score > bestScore) {
+			bestScore = score;
 		}
 	}
 
-	// Player has no legal moves, but opponent does, so switch back.
-	return miniMax(board, -player, searchDepth);
+	return bestScore;
 }
 
 //  The heuristicScores-values describes how valuable the pieces on these positions are.
