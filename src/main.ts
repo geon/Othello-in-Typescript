@@ -11,8 +11,11 @@ function printBoard(
 	board: Board,
 	markedPosition: number,
 	player: number,
-	userClickResolver?: (move: number) => void,
-): void {
+	legalMoves?: ReadonlyArray<number>,
+): Promise<number> {
+	let onClick!: (pos: number) => void;
+	const click = new Promise<number>(resolve => (onClick = resolve));
+
 	const xpos = markedPosition % 8;
 	const ypos = Math.floor(markedPosition / 8);
 
@@ -41,8 +44,9 @@ function printBoard(
 			const move = x + y * 8;
 
 			const button = document.createElement("button");
-			userClickResolver &&
-				button.addEventListener("click", () => userClickResolver(move));
+			legalMoves &&
+				legalMoves.includes(move) &&
+				button.addEventListener("click", () => onClick(move));
 
 			button.style.width = "2em";
 			button.style.height = "2em";
@@ -73,21 +77,24 @@ function printBoard(
 	table.appendChild(tbody);
 	root.appendChild(status);
 	root.appendChild(table);
+
+	return click;
 }
 
 async function main(): Promise<void> {
 	let player = 1;
 	let board: Board = startBoard;
 
-	let userClickResolver!: (move: number) => void;
-	let userClick = new Promise<number>(resolve => (userClickResolver = resolve));
-	printBoard(board, -1, player, userClickResolver);
-
 	for (;;) {
 		const moveList = getLegalMoves(board, player);
 		if (moveList) {
 			if (player == 1) {
-				const userMove = await userClick;
+				const userMove = await printBoard(
+					board,
+					-1,
+					player,
+					getLegalMoves(board, player),
+				);
 
 				if (moveIsLegal(userMove, board, player)) {
 					board = move(userMove, board, player);
@@ -96,16 +103,14 @@ async function main(): Promise<void> {
 					// Let the printed board render.
 					await new Promise(resolve => setTimeout(resolve, 200));
 				} else {
-					userClick = new Promise(resolve => (userClickResolver = resolve));
-					printBoard(board, -1, player, userClickResolver);
+					printBoard(board, -1, player);
 				}
 			} else {
 				// AI
 				const aiMove = getBestMove(board, player, moveList);
 				board = move(aiMove, board, player);
-				userClick = new Promise(resolve => (userClickResolver = resolve));
 				player = -player;
-				printBoard(board, aiMove, player, userClickResolver);
+				printBoard(board, aiMove, player);
 			}
 		} else {
 			player = -player;
