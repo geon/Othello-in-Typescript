@@ -13,7 +13,7 @@ const offSets = [-9, -8, -7, -1, 1, 7, 8, 9];
 export function getLegalMoves(
 	board: Board,
 	player: number,
-): number[] | undefined {
+): ReadonlyArray<number> | undefined {
 	// Loop through all squares to find legal moves and add them to the list.
 	const legalMoves = [];
 	for (let i = 0; i <= 63; i++) {
@@ -96,7 +96,7 @@ export function getBestMove(
 	board: Board,
 	player: number,
 	// 0 = easy, 1 = normal, 3 = hard, 4 = very hard.
-	legalMoves: number[],
+	legalMoves: ReadonlyArray<number>,
 	smartness: number = 4,
 ): number {
 	const scoredMoves = miniMax(board, player, legalMoves, smartness);
@@ -128,7 +128,7 @@ export function randomArrayElement<T>(array: ReadonlyArray<T>): T {
 function miniMax(
 	board: Board,
 	player: number,
-	moveListPlayer: number[],
+	moveListPlayer: ReadonlyArray<number>,
 	searchDepth: number,
 ): ReadonlyArray<{ move: number; score: number }> {
 	// Try the moves and score them.
