@@ -99,17 +99,30 @@ export function getBestMove(
 	legalMoves: number[],
 	smartness: number = 4,
 ): number {
-	let bestScore = -Infinity;
-	let bestMove = legalMoves[0];
+	const scoredMoves = miniMax(board, player, legalMoves, smartness);
 
-	for (const scoredMove of miniMax(board, player, legalMoves, smartness)) {
+	let bestScore = -Infinity;
+	let bestMoves = [legalMoves[0]];
+
+	// Keep track of all moves sharing the highest score.
+	for (const scoredMove of scoredMoves) {
 		if (scoredMove.score > bestScore) {
 			bestScore = scoredMove.score;
-			bestMove = scoredMove.move;
+			bestMoves = [scoredMove.move];
+		} else if (scoredMove.score == bestScore) {
+			bestMoves.push(scoredMove.move);
 		}
 	}
 
-	return bestMove;
+	// Randomly pick one of the highest scoring moves.
+	return randomArrayElement(bestMoves);
+}
+
+export function randomArrayElement<T>(array: ReadonlyArray<T>): T {
+	if (!array.length) {
+		throw new Error("Can't pick an element from an empty array.");
+	}
+	return array[Math.floor(Math.random() * array.length)];
 }
 
 function miniMax(
