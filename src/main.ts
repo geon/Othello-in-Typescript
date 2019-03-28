@@ -38,9 +38,11 @@ function printBoard(
 	for (let y = 0; y < 8; y++) {
 		const tr = document.createElement("tr");
 		for (let x = 0; x < 8; x++) {
+			const move = x + y * 8;
+
 			const button = document.createElement("button");
 			userClickResolver &&
-				button.addEventListener("click", () => userClickResolver(x + y * 8));
+				button.addEventListener("click", () => userClickResolver(move));
 
 			button.style.width = "2em";
 			button.style.height = "2em";
@@ -48,9 +50,9 @@ function printBoard(
 				button.innerText = "X";
 			}
 
-			if (board[x + y * 8] == 1) {
+			if (board[move] == 1) {
 				button.style.backgroundColor = "black";
-			} else if (board[x + y * 8] == -1) {
+			} else if (board[move] == -1) {
 				button.style.backgroundColor = "white";
 			} else {
 				button.style.backgroundColor = "#292";
