@@ -83,45 +83,42 @@ function printBoard(
 
 async function main(): Promise<void> {
 	let player = 1;
-	let board: Board = startBoard;
+	let board = startBoard;
 
 	for (;;) {
-		const moveList = getLegalMoves(board, player);
-		if (moveList) {
-			if (player == 1) {
-				const userMove = await printBoard(
-					board,
-					-1,
-					player,
-					getLegalMoves(board, player),
-				);
+		let moveList = getLegalMoves(board, player);
 
-				if (moveIsLegal(userMove, board, player)) {
-					board = move(userMove, board, player);
-					player = -player;
-					printBoard(board, userMove, player);
-					// Let the printed board render.
-					await new Promise(resolve => setTimeout(resolve, 200));
-				} else {
-					printBoard(board, -1, player);
-				}
-			} else {
-				// AI
-				const aiMove = getBestMove(board, player, moveList);
-				board = move(aiMove, board, player);
-				player = -player;
-				printBoard(board, aiMove, player);
-			}
-		} else {
+		// If no legal moves, switch player.
+		if (!moveList) {
 			player = -player;
-			const moveList = getLegalMoves(board, player);
+			moveList = getLegalMoves(board, player);
+
+			// If none of the players have lagal moves, game over.
 			if (!moveList) {
-				printBoard(board, -1, player);
-				alert("game over");
 				break;
 			}
 		}
+
+		// Pick a move.
+		let movePosition =
+			player == 1
+				? // User.
+				  await printBoard(board, -1, player, moveList)
+				: // AI
+				  getBestMove(board, player, moveList);
+
+		// Make the move.
+		board = move(movePosition!, board, player);
+		printBoard(board, movePosition, player);
+		// Let the printed board render.
+		await new Promise(res => setTimeout(res, 200));
+
+		// Switch player.
+		player = -player;
+		moveList = getLegalMoves(board, player);
 	}
+
+	alert("Game over.");
 }
 
 main();
