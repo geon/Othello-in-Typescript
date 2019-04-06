@@ -1,8 +1,15 @@
-import { play, getBestMove, getLegalMoves, Board, Player } from "./othello";
+import {
+	play,
+	getBestMove,
+	getLegalMoves,
+	Board,
+	Player,
+	Coord,
+} from "./othello";
 
 export async function* generateTrainingData() {
 	for (;;) {
-		const steps: Array<{ board: Board; player: Player; move: number }> = [];
+		const steps: Array<{ board: Board; player: Player; move: Coord }> = [];
 
 		// Play a match, saving each move.
 		const result = await play(async (board, player, legalMoves) => {

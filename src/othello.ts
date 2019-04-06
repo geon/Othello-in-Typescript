@@ -1,6 +1,31 @@
 export type Player = -1 | 1;
-type Cell = Player | 0;
+export type Cell = Player | 0;
 export type Board = ReadonlyArray<Cell>;
+
+export interface Coord {
+	x: number;
+	y: number;
+}
+
+export function indexToCoord(index: number): Coord {
+	return { x: index % 8, y: Math.floor(index / 8) };
+}
+
+export function coordToIndex(coord: Coord): number {
+	return coord.x + coord.y * 8;
+}
+
+function addCoord(a: Coord, b: Coord): Coord {
+	return { x: a.x + b.x, y: a.y + b.y };
+}
+
+function subCoord(a: Coord, b: Coord): Coord {
+	return { x: a.x - b.x, y: a.y - b.y };
+}
+
+export function coordsAreEqual(a: Coord, b: Coord): boolean {
+	return a.x === b.x && a.y === b.y;
+}
 
 // List-format:
 //  Every list is a number[64] where the first element tells how long the list is.
@@ -10,17 +35,27 @@ export type Board = ReadonlyArray<Cell>;
 //  The number's named player can only be 1 or -1. to switch player I use a unary minus.
 
 // Offsets for the 8 directions. upp-left, upp, upp-right, ..., down-right. The order doesn't really matter.
-const offSets = [-9, -8, -7, -1, 1, 7, 8, 9];
+const offSets: ReadonlyArray<Coord> = [
+	{ x: -1, y: -1 },
+	{ x: 0, y: -1 },
+	{ x: 1, y: -1 },
+	{ x: -1, y: 0 },
+	{ x: 1, y: 0 },
+	{ x: -1, y: 1 },
+	{ x: 0, y: 1 },
+	{ x: 1, y: 1 },
+];
 
 export function getLegalMoves(
 	board: Board,
 	player: Player,
-): ReadonlyArray<number> | undefined {
+): ReadonlyArray<Coord> | undefined {
 	// Loop through all squares to find legal moves and add them to the list.
 	const legalMoves = [];
 	for (let i = 0; i <= 63; i++) {
-		if (moveIsLegal(i, board, player)) {
-			legalMoves.push(i);
+		const position = indexToCoord(i);
+		if (moveIsLegal(position, board, player)) {
+			legalMoves.push(position);
 		}
 	}
 
@@ -32,12 +67,12 @@ export function getLegalMoves(
 }
 
 export function moveIsLegal(
-	position: number,
+	position: Coord,
 	board: Board,
 	player: Player,
 ): boolean {
 	// We may only put pieces in empty squares.
-	if (board[position]) {
+	if (board[coordToIndex(position)]) {
 		return false;
 	}
 
@@ -49,20 +84,20 @@ export function moveIsLegal(
 		}
 
 		// Start steping one square from position.
-		let currentPosition = position + offSet;
+		let currentPosition = addCoord(position, offSet);
 		let stepsMoved = 0;
 
 		// Take a step in direction as long as it is legal (we may not step out of the board) and the pices belongs to opponent (-player).
 		while (
-			board[currentPosition] == -player &&
+			board[coordToIndex(currentPosition)] == -player &&
 			stepIsLegal(currentPosition, offSet)
 		) {
 			// Step to the next square in direction.
-			currentPosition += offSet;
+			currentPosition = addCoord(currentPosition, offSet);
 			stepsMoved++;
 		}
 
-		if (stepsMoved > 0 && board[currentPosition] == player) {
+		if (stepsMoved > 0 && board[coordToIndex(currentPosition)] == player) {
 			// We have found a comlete row.
 			return true;
 		}
@@ -72,21 +107,21 @@ export function moveIsLegal(
 	return false;
 }
 
-function stepIsLegal(position: number, offSet: number): boolean {
+function stepIsLegal(position: Coord, offSet: Coord): boolean {
 	// Take care of left, ...
-	if (position % 8 == 0 && (offSet == -9 || offSet == -1 || offSet == 7)) {
+	if (position.x === 0 && offSet.x === -1) {
 		return false;
 	}
 	// ... right, ...
-	if (position % 8 == 7 && (offSet == -7 || offSet == 1 || offSet == 9)) {
+	if (position.x === 7 && offSet.x === 1) {
 		return false;
 	}
 	// ... upper, ...
-	if (Math.floor(position / 8) == 0 && offSet < 0 && offSet != -1) {
+	if (position.y === 0 && offSet.y === -1) {
 		return false;
 	}
 	// ... and lower edge.
-	if (Math.floor(position / 8) == 7 && offSet > 0 && offSet != 1) {
+	if (position.y === 7 && offSet.y === 1) {
 		return false;
 	}
 
@@ -98,9 +133,9 @@ export function getBestMove(
 	board: Board,
 	player: Player,
 	// 0 = easy, 1 = normal, 3 = hard, 4 = very hard.
-	legalMoves: ReadonlyArray<number>,
+	legalMoves: ReadonlyArray<Coord>,
 	smartness: number = 4,
-): number {
+): Coord {
 	const scoredMoves = miniMax(board, player, legalMoves, smartness);
 
 	let bestScore = -Infinity;
@@ -130,9 +165,9 @@ export function randomArrayElement<T>(array: ReadonlyArray<T>): T {
 function miniMax(
 	board: Board,
 	player: Player,
-	moveListPlayer: ReadonlyArray<number>,
+	moveListPlayer: ReadonlyArray<Coord>,
 	searchDepth: number,
-): ReadonlyArray<{ move: number; score: number }> {
+): ReadonlyArray<{ move: Coord; score: number }> {
 	// Try the moves and score them.
 	return moveListPlayer.map(movePosition => {
 		const newBoard = move(movePosition, board, player);
@@ -206,7 +241,7 @@ function evaluateBoard(
 }
 
 function getBestScore(
-	scoredMoves: ReadonlyArray<{ move: number; score: number }>,
+	scoredMoves: ReadonlyArray<{ move: Coord; score: number }>,
 ): number {
 	return Math.max(...scoredMoves.map(scoredMove => scoredMove.score));
 }
@@ -235,9 +270,9 @@ function heuristicScore(board: Board, player: Player): number {
 }
 
 // Make shure you MAY move before you call this function.
-export function move(position: number, board: Board, player: Player): Board {
+export function move(position: Coord, board: Board, player: Player): Board {
 	const newBoard = [...board];
-	newBoard[position] = player;
+	newBoard[coordToIndex(position)] = player;
 
 	for (const offSet of offSets) {
 		// Skip this direction if one may not step there.
@@ -246,23 +281,23 @@ export function move(position: number, board: Board, player: Player): Board {
 		}
 
 		// Start steping one square from position.
-		let currentPosition = position + offSet;
+		let currentPosition = addCoord(position, offSet);
 
 		let stepsMoved = 0;
 		while (
-			newBoard[currentPosition] == -player &&
+			newBoard[coordToIndex(currentPosition)] == -player &&
 			stepIsLegal(currentPosition, offSet)
 		) {
-			currentPosition += offSet;
+			currentPosition = addCoord(currentPosition, offSet);
 			stepsMoved++;
 		}
 
 		// If we found a row:
-		if (stepsMoved > 0 && newBoard[currentPosition] == player) {
+		if (stepsMoved > 0 && newBoard[coordToIndex(currentPosition)] == player) {
 			// Flip
 			for (; stepsMoved > 0; stepsMoved--) {
-				currentPosition -= offSet;
-				newBoard[currentPosition] = player;
+				currentPosition = subCoord(currentPosition, offSet);
+				newBoard[coordToIndex(currentPosition)] = player;
 			}
 		}
 	}
@@ -285,8 +320,8 @@ export async function play(
 	getMove: (
 		board: Board,
 		player: Player,
-		legalMoves: ReadonlyArray<number>,
-	) => Promise<number>,
+		legalMoves: ReadonlyArray<Coord>,
+	) => Promise<Coord>,
 ): Promise<{ readonly board: Board; readonly winner: Player | undefined }> {
 	let player: Player = 1;
 	let board = startBoard;
