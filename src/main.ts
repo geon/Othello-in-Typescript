@@ -96,7 +96,7 @@ async function main(): Promise<void> {
 		}
 	});
 
-	printBoard(result.board, -1, result.winner);
+	printBoard(result.board, -1, result.winner || 0);
 	await new Promise(res => setTimeout(res, 1000));
 
 	alert("Game over.");

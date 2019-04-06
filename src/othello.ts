@@ -1,4 +1,6 @@
-export type Board = ReadonlyArray<number>;
+export type Player = -1 | 1;
+type Cell = Player | 0;
+export type Board = ReadonlyArray<Cell>;
 
 // List-format:
 //  Every list is a number[64] where the first element tells how long the list is.
@@ -12,7 +14,7 @@ const offSets = [-9, -8, -7, -1, 1, 7, 8, 9];
 
 export function getLegalMoves(
 	board: Board,
-	player: number,
+	player: Player,
 ): ReadonlyArray<number> | undefined {
 	// Loop through all squares to find legal moves and add them to the list.
 	const legalMoves = [];
@@ -32,7 +34,7 @@ export function getLegalMoves(
 export function moveIsLegal(
 	position: number,
 	board: Board,
-	player: number,
+	player: Player,
 ): boolean {
 	// We may only put pieces in empty squares.
 	if (board[position]) {
@@ -94,7 +96,7 @@ function stepIsLegal(position: number, offSet: number): boolean {
 
 export function getBestMove(
 	board: Board,
-	player: number,
+	player: Player,
 	// 0 = easy, 1 = normal, 3 = hard, 4 = very hard.
 	legalMoves: ReadonlyArray<number>,
 	smartness: number = 4,
@@ -127,7 +129,7 @@ export function randomArrayElement<T>(array: ReadonlyArray<T>): T {
 
 function miniMax(
 	board: Board,
-	player: number,
+	player: Player,
 	moveListPlayer: ReadonlyArray<number>,
 	searchDepth: number,
 ): ReadonlyArray<{ move: number; score: number }> {
@@ -142,12 +144,16 @@ function miniMax(
 	});
 }
 
+function getOpponent(player: Player): Player {
+	return -player as Player;
+}
+
 function evaluateBoard(
 	board: Board,
-	player: number,
+	player: Player,
 	searchDepth: number,
 ): number {
-	const moveListOpponent = getLegalMoves(board, -player);
+	const moveListOpponent = getLegalMoves(board, getOpponent(player));
 
 	if (searchDepth <= 1) {
 		// The max depth is reached. Use simple heuristics.
@@ -162,12 +168,12 @@ function evaluateBoard(
 	if (moveListOpponent) {
 		// Switch player.
 		return -getBestScore(
-			miniMax(board, -player, moveListOpponent, searchDepth - 1),
+			miniMax(board, getOpponent(player), moveListOpponent, searchDepth - 1),
 		);
 	}
 
 	// The opponent has no legal moves, so don't switch player.
-	const moveListPlayer = getLegalMoves(board, -player);
+	const moveListPlayer = getLegalMoves(board, getOpponent(player));
 	if (moveListPlayer) {
 		// The player can move again.
 		return getBestScore(
@@ -217,7 +223,7 @@ const heuristicScores = [
 	...[8, -4, 6, 4, 4, 6, -4, 8],
 ];
 
-function heuristicScore(board: Board, player: number): number {
+function heuristicScore(board: Board, player: Player): number {
 	let score = 0;
 
 	// Reward the player if he has more (weighted) pieces than the opponent.
@@ -229,7 +235,7 @@ function heuristicScore(board: Board, player: number): number {
 }
 
 // Make shure you MAY move before you call this function.
-export function move(position: number, board: Board, player: number): Board {
+export function move(position: number, board: Board, player: Player): Board {
 	const newBoard = [...board];
 	newBoard[position] = player;
 
@@ -273,16 +279,16 @@ export const startBoard: Board = [
 	...[0, 0, 0, 0, 0, 0, 0, 0],
 	...[0, 0, 0, 0, 0, 0, 0, 0],
 	...[0, 0, 0, 0, 0, 0, 0, 0],
-];
+] as Board;
 
 export async function play(
 	getMove: (
 		board: Board,
-		player: number,
+		player: Player,
 		legalMoves: ReadonlyArray<number>,
 	) => Promise<number>,
-): Promise<{ readonly board: Board; readonly winner: 1 | -1 | 0 }> {
-	let player = 1;
+): Promise<{ readonly board: Board; readonly winner: Player | undefined }> {
+	let player: Player = 1;
 	let board = startBoard;
 
 	for (;;) {
@@ -290,7 +296,7 @@ export async function play(
 
 		// If no legal moves, switch player.
 		if (!moveList) {
-			player = -player;
+			player = getOpponent(player);
 			moveList = getLegalMoves(board, player);
 
 			// If none of the players have lagal moves, game over.
@@ -306,12 +312,12 @@ export async function play(
 		board = move(movePosition!, board, player);
 
 		// Switch player.
-		player = -player;
+		player = getOpponent(player);
 		moveList = getLegalMoves(board, player);
 	}
 
-	const score = board.reduce((sum, piece) => sum + piece, 0);
-	const winner = score === 0 ? 0 : score > 0 ? 1 : -1;
+	const score = board.reduce<number>((sum, piece) => sum + piece, 0);
+	const winner = score === 0 ? undefined : score > 0 ? 1 : -1;
 
 	return {
 		board,
