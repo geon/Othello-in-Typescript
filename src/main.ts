@@ -6,19 +6,19 @@ import {
 	Board,
 	startBoard,
 	play,
+	Coord,
+	coordsAreEqual,
+	coordToIndex,
 } from "./othello";
 
 function printBoard(
 	board: Board,
-	markedPosition: number,
+	markedPosition: Coord | undefined,
 	player: number,
-	legalMoves?: ReadonlyArray<number>,
-): Promise<number> {
-	let onClick!: (pos: number) => void;
-	const click = new Promise<number>(resolve => (onClick = resolve));
-
-	const xpos = markedPosition % 8;
-	const ypos = Math.floor(markedPosition / 8);
+	legalMoves?: ReadonlyArray<Coord>,
+): Promise<Coord> {
+	let onClick!: (pos: Coord) => void;
+	const click = new Promise<Coord>(resolve => (onClick = resolve));
 
 	let pl1count = 0;
 	let pl2count = 0;
@@ -42,22 +42,22 @@ function printBoard(
 	for (let y = 0; y < 8; y++) {
 		const tr = document.createElement("tr");
 		for (let x = 0; x < 8; x++) {
-			const move = x + y * 8;
+			const move = { x, y };
 
 			const button = document.createElement("button");
 			legalMoves &&
-				legalMoves.includes(move) &&
+				legalMoves.some(legalMove => coordsAreEqual(legalMove, move)) &&
 				button.addEventListener("click", () => onClick(move));
 
 			button.style.width = "2em";
 			button.style.height = "2em";
-			if (y == ypos && x == xpos) {
+			if (markedPosition && (y == markedPosition.y && x == markedPosition.x)) {
 				button.innerText = "X";
 			}
 
-			if (board[move] == 1) {
+			if (board[coordToIndex(move)] == 1) {
 				button.style.backgroundColor = "black";
-			} else if (board[move] == -1) {
+			} else if (board[coordToIndex(move)] == -1) {
 				button.style.backgroundColor = "white";
 			} else {
 				button.style.backgroundColor = "#292";
@@ -86,7 +86,7 @@ async function main(): Promise<void> {
 	const result = await play(async (board, player, moveList) => {
 		if (player === 1) {
 			// User.
-			return printBoard(board, -1, player, moveList);
+			return printBoard(board, undefined, player, moveList);
 		} else {
 			// AI
 			const aiMove = getBestMove(board, player, moveList);
@@ -96,7 +96,7 @@ async function main(): Promise<void> {
 		}
 	});
 
-	printBoard(result.board, -1, result.winner || 0);
+	printBoard(result.board, undefined, result.winner || 0);
 	await new Promise(res => setTimeout(res, 1000));
 
 	alert("Game over.");
