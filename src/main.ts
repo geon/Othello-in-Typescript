@@ -5,6 +5,7 @@ import {
 	move,
 	Board,
 	startBoard,
+	play,
 } from "./othello";
 
 function printBoard(
@@ -82,41 +83,21 @@ function printBoard(
 }
 
 async function main(): Promise<void> {
-	let player = 1;
-	let board = startBoard;
-
-	for (;;) {
-		let moveList = getLegalMoves(board, player);
-
-		// If no legal moves, switch player.
-		if (!moveList) {
-			player = -player;
-			moveList = getLegalMoves(board, player);
-
-			// If none of the players have lagal moves, game over.
-			if (!moveList) {
-				break;
-			}
+	const result = await play(async (board, player, moveList) => {
+		if (player === 1) {
+			// User.
+			return printBoard(board, -1, player, moveList);
+		} else {
+			// AI
+			const aiMove = getBestMove(board, player, moveList);
+			printBoard(board, aiMove, player);
+			await new Promise(res => setTimeout(res, 200));
+			return aiMove;
 		}
+	});
 
-		// Pick a move.
-		let movePosition =
-			player == 1
-				? // User.
-				  await printBoard(board, -1, player, moveList)
-				: // AI
-				  getBestMove(board, player, moveList);
-
-		// Make the move.
-		board = move(movePosition!, board, player);
-		printBoard(board, movePosition, player);
-		// Let the printed board render.
-		await new Promise(res => setTimeout(res, 200));
-
-		// Switch player.
-		player = -player;
-		moveList = getLegalMoves(board, player);
-	}
+	printBoard(result.board, -1, result.winner);
+	await new Promise(res => setTimeout(res, 1000));
 
 	alert("Game over.");
 }

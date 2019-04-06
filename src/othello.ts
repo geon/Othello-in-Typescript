@@ -274,3 +274,47 @@ export const startBoard: Board = [
 	...[0, 0, 0, 0, 0, 0, 0, 0],
 	...[0, 0, 0, 0, 0, 0, 0, 0],
 ];
+
+export async function play(
+	getMove: (
+		board: Board,
+		player: number,
+		legalMoves: ReadonlyArray<number>,
+	) => Promise<number>,
+): Promise<{ readonly board: Board; readonly winner: 1 | -1 | 0 }> {
+	let player = 1;
+	let board = startBoard;
+
+	for (;;) {
+		let moveList = getLegalMoves(board, player);
+
+		// If no legal moves, switch player.
+		if (!moveList) {
+			player = -player;
+			moveList = getLegalMoves(board, player);
+
+			// If none of the players have lagal moves, game over.
+			if (!moveList) {
+				break;
+			}
+		}
+
+		// Pick a move.
+		let movePosition = await getMove(board, player, moveList);
+
+		// Make the move.
+		board = move(movePosition!, board, player);
+
+		// Switch player.
+		player = -player;
+		moveList = getLegalMoves(board, player);
+	}
+
+	const score = board.reduce((sum, piece) => sum + piece, 0);
+	const winner = score === 0 ? 0 : score > 0 ? 1 : -1;
+
+	return {
+		board,
+		winner,
+	};
+}
