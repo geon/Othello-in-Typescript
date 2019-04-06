@@ -189,8 +189,10 @@ function evaluateBoard(
 	}
 	// Reward the winner.
 	if (playerCount > opponentCount) {
+		// TODO: Return a high score, plus the piece count, so the AI prioritizes the greatest win, not just any win.
 		return Infinity;
 	} else if (playerCount < opponentCount) {
+		// TODO: Return a LOW score, MINUS the opportunity count, so the AI prioritizes the smartest move, in case the opponent makes a mistake.
 		return -Infinity;
 	} else {
 		return 0;
