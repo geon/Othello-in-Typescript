@@ -6,9 +6,13 @@ import {
 	Player,
 	Coord,
 	Cell,
+	coordToIndex,
 } from "./othello";
 
-export async function* generateTrainingData() {
+export async function* generateTrainingData(): AsyncIterableIterator<{
+	board: ReadonlyArray<Cell>;
+	scores: ReadonlyArray<number>;
+}> {
 	for (;;) {
 		const steps: Array<{ board: Board; player: Player; move: Coord }> = [];
 
@@ -40,25 +44,26 @@ export async function* generateTrainingData() {
 
 			// In retrospect, we know if this move led to a win or loss.
 			const score = step.player === result.winner ? 1 : -1;
-			yield { board: normalizedBoard, move: step.move, score };
 
-			// Assume all other moves would have been better/worse.
-			for (const move of legalMoves) {
-				if (move !== step.move) {
-					yield { board: normalizedBoard, move, score: -score };
-				}
+			// Illegal moves are zeroed.
+			const scores = normalizedBoard.map(_ => 0);
+			for (const legalMove of legalMoves) {
+				// Assume all other moves would have been better/worse.
+				scores[coordToIndex(legalMove)] = -score;
 			}
+			scores[coordToIndex(step.move)] = score;
+			yield { board: normalizedBoard, scores };
 		}
 	}
 }
 
-// async function main() {
+// async function main2() {
 // 	const generator = generateTrainingData();
 
-// 	for (let i = 0; i < 2; ++i) {
+// 	for (let i = 0; i < 200; ++i) {
 // 		const trainingData = await generator.next();
-// 		console.log(trainingData.value.move, trainingData.value.score);
+// 		console.log(trainingData.value.scores);
 // 	}
 // }
 
-// main();
+// main()2;
