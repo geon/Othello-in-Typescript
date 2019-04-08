@@ -1,4 +1,4 @@
-import { Coord } from "./coord";
+import { Coord, coordToIndex } from "./coord";
 import { miniMax } from "./miniMax";
 import {
 	play,
@@ -8,7 +8,10 @@ import {
 	heuristicScore,
 } from "./othello";
 
-export async function* generateTrainingData() {
+export async function* generateTrainingData(): AsyncIterableIterator<{
+	board: ReadonlyArray<Cell>;
+	scores: ReadonlyArray<number>;
+}> {
 	for (;;) {
 		const steps: Array<{
 			readonly gameState: GameStatePlaying;
@@ -38,14 +41,15 @@ export async function* generateTrainingData() {
 
 			// In retrospect, we know if this move led to a win or loss.
 			const score = step.gameState.player === result.winner ? 1 : -1;
-			yield { board: normalizedBoard, move: step.move, score };
 
-			// Assume all other moves would have been better/worse.
-			for (const move of step.gameState.legalMoves) {
-				if (move !== step.move) {
-					yield { board: normalizedBoard, move, score: -score };
-				}
+			// Illegal moves are zeroed.
+			const scores = normalizedBoard.map((_) => 0);
+			for (const legalMove of step.gameState.legalMoves) {
+				// Assume all other moves would have been better/worse.
+				scores[coordToIndex(legalMove)] = -score;
 			}
+			scores[coordToIndex(step.move)] = score;
+			yield { board: normalizedBoard, scores };
 		}
 	}
 }
@@ -53,9 +57,9 @@ export async function* generateTrainingData() {
 // async function main() {
 // 	const generator = generateTrainingData();
 
-// 	for (let i = 0; i < 2; ++i) {
+// 	for (let i = 0; i < 200; ++i) {
 // 		const trainingData = await generator.next();
-// 		console.log(trainingData.value.move, trainingData.value.score);
+// 		console.log(trainingData.value.scores);
 // 	}
 // }
 
