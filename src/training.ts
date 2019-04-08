@@ -5,6 +5,7 @@ import {
 	Board,
 	Player,
 	Coord,
+	Cell,
 } from "./othello";
 
 export async function* generateTrainingData() {
@@ -33,7 +34,9 @@ export async function* generateTrainingData() {
 			}
 
 			// Only generate boards from player 1's POV.
-			const normalizedBoard = step.board.map(cell => cell * step.player);
+			const normalizedBoard = step.board.map(
+				cell => (cell * step.player) as Cell,
+			);
 
 			// In retrospect, we know if this move led to a win or loss.
 			const score = step.player === result.winner ? 1 : -1;
