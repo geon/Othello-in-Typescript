@@ -247,7 +247,7 @@ function getBestScore(
 }
 
 //  The heuristicScores-values describes how valuable the pieces on these positions are.
-const heuristicScores = [
+const heuristicScores: ReadonlyArray<number> = [
 	...[8, -4, 6, 4, 4, 6, -4, 8],
 	...[-4, -4, 0, 0, 0, 0, -4, -4],
 	...[6, 0, 2, 2, 2, 2, 0, 6],
