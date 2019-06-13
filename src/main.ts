@@ -39,12 +39,12 @@ function printBoard(
 	for (let y = 0; y < 8; y++) {
 		const tr = document.createElement("tr");
 		for (let x = 0; x < 8; x++) {
-			const move = { x, y };
+			const moveCoord = { x, y };
 
 			const button = document.createElement("button");
 			legalMoves &&
-				legalMoves.some(legalMove => coordsAreEqual(legalMove, move)) &&
-				button.addEventListener("click", () => onClick(move));
+				legalMoves.some(legalMove => coordsAreEqual(legalMove, moveCoord)) &&
+				button.addEventListener("click", () => onClick(moveCoord));
 
 			button.style.width = "2em";
 			button.style.height = "2em";
@@ -55,9 +55,9 @@ function printBoard(
 				button.innerText = "X";
 			}
 
-			if (board[coordToIndex(move)] === 1) {
+			if (board[coordToIndex(moveCoord)] === 1) {
 				button.style.backgroundColor = "black";
-			} else if (board[coordToIndex(move)] === -1) {
+			} else if (board[coordToIndex(moveCoord)] === -1) {
 				button.style.backgroundColor = "white";
 			} else {
 				button.style.backgroundColor = "#292";
