@@ -1,16 +1,11 @@
 import {
-	moveIsLegal,
-	getLegalMoves,
 	getBestMove,
-	move,
 	Board,
-	startBoard,
 	play,
 	Coord,
 	coordsAreEqual,
 	coordToIndex,
 } from "./othello";
-import { generateTrainingData } from "./training";
 
 function printBoard(
 	board: Board,
