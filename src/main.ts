@@ -24,9 +24,9 @@ function printBoard(
 	let pl1count = 0;
 	let pl2count = 0;
 	for (let i = 0; i < 64; i++)
-		if (board[i] == 1) {
+		if (board[i] === 1) {
 			pl1count++;
-		} else if (board[i] == -1) {
+		} else if (board[i] === -1) {
 			pl2count++;
 		}
 
@@ -48,13 +48,16 @@ function printBoard(
 
 			button.style.width = "2em";
 			button.style.height = "2em";
-			if (markedPosition && (y == markedPosition.y && x == markedPosition.x)) {
+			if (
+				markedPosition &&
+				(y === markedPosition.y && x === markedPosition.x)
+			) {
 				button.innerText = "X";
 			}
 
-			if (board[coordToIndex(move)] == 1) {
+			if (board[coordToIndex(move)] === 1) {
 				button.style.backgroundColor = "black";
-			} else if (board[coordToIndex(move)] == -1) {
+			} else if (board[coordToIndex(move)] === -1) {
 				button.style.backgroundColor = "white";
 			} else {
 				button.style.backgroundColor = "#292";
