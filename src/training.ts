@@ -10,11 +10,15 @@ import {
 } from "./othello";
 
 export async function* generateTrainingData(): AsyncIterableIterator<{
-	board: ReadonlyArray<Cell>;
-	scores: ReadonlyArray<number>;
+	readonly board: ReadonlyArray<Cell>;
+	readonly scores: ReadonlyArray<number>;
 }> {
 	for (;;) {
-		const steps: Array<{ board: Board; player: Player; move: Coord }> = [];
+		const steps: Array<{
+			readonly board: Board;
+			readonly player: Player;
+			readonly move: Coord;
+		}> = [];
 
 		// Play a match, saving each move.
 		const result = await play(async (board, player, legalMoves) => {
