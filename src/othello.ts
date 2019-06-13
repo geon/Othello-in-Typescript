@@ -207,13 +207,15 @@ function evaluateBoard(
 		);
 	}
 
-	// The opponent has no legal moves, so don't switch player.
-	const moveListPlayer = getLegalMoves(board, getOpponent(player));
-	if (moveListPlayer) {
-		// The player can move again.
-		return getBestScore(
-			miniMax(board, player, moveListPlayer, searchDepth - 1),
-		);
+	{
+		// The opponent has no legal moves, so don't switch player.
+		const moveListPlayer = getLegalMoves(board, getOpponent(player));
+		if (moveListPlayer) {
+			// The player can move again.
+			return getBestScore(
+				miniMax(board, player, moveListPlayer, searchDepth - 1),
+			);
+		}
 	}
 
 	// Noone can move. Game over.
