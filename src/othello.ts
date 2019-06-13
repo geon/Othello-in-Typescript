@@ -3,8 +3,8 @@ export type Cell = Player | 0;
 export type Board = ReadonlyArray<Cell>;
 
 export interface Coord {
-	x: number;
-	y: number;
+	readonly x: number;
+	readonly y: number;
 }
 
 export function indexToCoord(index: number): Coord {
@@ -167,7 +167,7 @@ function miniMax(
 	player: Player,
 	moveListPlayer: ReadonlyArray<Coord>,
 	searchDepth: number,
-): ReadonlyArray<{ move: Coord; score: number }> {
+): ReadonlyArray<{ readonly move: Coord; readonly score: number }> {
 	// Try the moves and score them.
 	return moveListPlayer.map(movePosition => {
 		const newBoard = move(movePosition, board, player);
@@ -241,7 +241,7 @@ function evaluateBoard(
 }
 
 function getBestScore(
-	scoredMoves: ReadonlyArray<{ move: Coord; score: number }>,
+	scoredMoves: ReadonlyArray<{ readonly move: Coord; readonly score: number }>,
 ): number {
 	return Math.max(...scoredMoves.map(scoredMove => scoredMove.score));
 }
