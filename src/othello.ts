@@ -89,7 +89,7 @@ export function moveIsLegal(
 
 		// Take a step in direction as long as it is legal (we may not step out of the board) and the pices belongs to opponent (-player).
 		while (
-			board[coordToIndex(currentPosition)] == -player &&
+			board[coordToIndex(currentPosition)] === -player &&
 			stepIsLegal(currentPosition, offSet)
 		) {
 			// Step to the next square in direction.
@@ -97,7 +97,7 @@ export function moveIsLegal(
 			stepsMoved++;
 		}
 
-		if (stepsMoved > 0 && board[coordToIndex(currentPosition)] == player) {
+		if (stepsMoved > 0 && board[coordToIndex(currentPosition)] === player) {
 			// We have found a comlete row.
 			return true;
 		}
@@ -146,7 +146,7 @@ export function getBestMove(
 		if (scoredMove.score > bestScore) {
 			bestScore = scoredMove.score;
 			bestMoves = [scoredMove.move];
-		} else if (scoredMove.score == bestScore) {
+		} else if (scoredMove.score === bestScore) {
 			bestMoves.push(scoredMove.move);
 		}
 	}
@@ -222,9 +222,9 @@ function evaluateBoard(
 	let playerCount = 0;
 	let opponentCount = 0;
 	for (const piece of board) {
-		if (piece == player) {
+		if (piece === player) {
 			playerCount++;
-		} else if (piece == -player) {
+		} else if (piece === -player) {
 			opponentCount++;
 		}
 	}
@@ -285,7 +285,7 @@ export function move(position: Coord, board: Board, player: Player): Board {
 
 		let stepsMoved = 0;
 		while (
-			newBoard[coordToIndex(currentPosition)] == -player &&
+			newBoard[coordToIndex(currentPosition)] === -player &&
 			stepIsLegal(currentPosition, offSet)
 		) {
 			currentPosition = addCoord(currentPosition, offSet);
@@ -293,7 +293,7 @@ export function move(position: Coord, board: Board, player: Player): Board {
 		}
 
 		// If we found a row:
-		if (stepsMoved > 0 && newBoard[coordToIndex(currentPosition)] == player) {
+		if (stepsMoved > 0 && newBoard[coordToIndex(currentPosition)] === player) {
 			// Flip
 			for (; stepsMoved > 0; stepsMoved--) {
 				currentPosition = subCoord(currentPosition, offSet);
