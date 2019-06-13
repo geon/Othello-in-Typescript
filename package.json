@@ -5,11 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "tape --require ts-node/register \"test/**/*.ts\" | tap-spec",
+    "train": "node --require ts-node/register src/training.ts",
     "start": "webpack-dev-server -d",
     "build:clean": "rm -rf dist",
-		"build":
-			"npm run build:clean && webpack-cli --mode production --optimize-minimize && cp src/index.html dist/",
-		"publish": "npm run build && publish.sh"
+    "build": "npm run build:clean && webpack-cli --mode production --optimize-minimize && cp src/index.html dist/",
+    "publish": "npm run build && publish.sh"
   },
   "author": "",
   "license": "ISC",
@@ -19,6 +19,7 @@
     "tap-spec": "^5.0.0",
     "tape": "^4.9.2",
     "ts-loader": "^5.3.3",
+    "ts-node": "^8.2.0",
     "typescript": "^3.3.1",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",

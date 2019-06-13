@@ -57,13 +57,13 @@ export async function* generateTrainingData(): AsyncIterableIterator<{
 	}
 }
 
-// async function main2() {
-// 	const generator = generateTrainingData();
+async function main2() {
+	const generator = generateTrainingData();
 
-// 	for (let i = 0; i < 200; ++i) {
-// 		const trainingData = await generator.next();
-// 		console.log(trainingData.value.scores);
-// 	}
-// }
+	for (let i = 0; i < 200; ++i) {
+		const trainingData = await generator.next();
+		console.log(trainingData.value.scores);
+	}
+}
 
-// main()2;
+main2();

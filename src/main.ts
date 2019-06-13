@@ -10,6 +10,7 @@ import {
 	coordsAreEqual,
 	coordToIndex,
 } from "./othello";
+import { generateTrainingData } from "./training";
 
 function printBoard(
 	board: Board,
