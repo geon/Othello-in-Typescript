@@ -1,10 +1,6 @@
 import {
-	moveIsLegal,
-	getLegalMoves,
 	getBestMove,
-	move,
 	Board,
-	startBoard,
 	play,
 	Coord,
 	coordsAreEqual,
