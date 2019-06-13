@@ -31,13 +31,9 @@ function printBoard(
 		}
 
 	const status = document.createElement("p");
-	status.innerText =
-		"black: " +
-		pl1count +
-		", white: " +
-		pl2count +
-		", player: " +
-		(player == 1 ? "black" : "white");
+	status.innerText = `black: ${pl1count}, white: ${pl2count}, player: ${
+		player === 1 ? "black" : "white"
+	}`;
 
 	const tbody = document.createElement("table");
 	for (let y = 0; y < 8; y++) {
