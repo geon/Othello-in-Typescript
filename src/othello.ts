@@ -346,7 +346,7 @@ export async function play(
 		let movePosition = await getMove(board, player, moveList);
 
 		// Make the move.
-		board = move(movePosition!, board, player);
+		board = move(movePosition, board, player);
 
 		// Switch player.
 		player = getOpponent(player);
