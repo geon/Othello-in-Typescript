@@ -78,13 +78,13 @@ function printBoard(
 }
 
 async function main(): Promise<void> {
-	const result = await play(async (board, player, moveList) => {
+	const result = await play(async (board, player, legalMoves) => {
 		if (player === 1) {
 			// User.
-			return printBoard(board, undefined, player, moveList);
+			return printBoard(board, undefined, player, legalMoves);
 		} else {
 			// AI
-			const aiMove = getBestMove(board, player, moveList);
+			const aiMove = getBestMove(board, player, legalMoves);
 			printBoard(board, aiMove, player);
 			await new Promise(res => setTimeout(res, 200));
 			return aiMove;

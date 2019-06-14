@@ -329,28 +329,28 @@ export async function play(
 	let board = startBoard;
 
 	for (;;) {
-		let moveList = getLegalMoves(board, player);
+		let legalMoves = getLegalMoves(board, player);
 
 		// If no legal moves, switch player.
-		if (!moveList) {
+		if (!legalMoves) {
 			player = getOpponent(player);
-			moveList = getLegalMoves(board, player);
+			legalMoves = getLegalMoves(board, player);
 
 			// If none of the players have lagal moves, game over.
-			if (!moveList) {
+			if (!legalMoves) {
 				break;
 			}
 		}
 
 		// Pick a move.
-		let movePosition = await getMove(board, player, moveList);
+		let movePosition = await getMove(board, player, legalMoves);
 
 		// Make the move.
 		board = move(movePosition, board, player);
 
 		// Switch player.
 		player = getOpponent(player);
-		moveList = getLegalMoves(board, player);
+		legalMoves = getLegalMoves(board, player);
 	}
 
 	const score = board.reduce<number>((sum, piece) => sum + piece, 0);
