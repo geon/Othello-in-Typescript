@@ -62,7 +62,7 @@ export async function* generateTrainingData(): AsyncIterableIterator<{
 	}
 }
 
-async function main2() {
+async function main() {
 	const modelUri = "file://./models/1-hidden";
 
 	let model: tf.LayersModel;
@@ -113,4 +113,4 @@ async function main2() {
 	}
 }
 
-main2();
+main();
