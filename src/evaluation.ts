@@ -3,7 +3,9 @@ import {
 	getBestMove,
 	GetMoveFunction,
 	randomArrayElement,
+	coordToIndex,
 } from "./othello";
+import * as tf from "@tensorflow/tfjs-node";
 
 async function winRateOfA(
 	a: GetMoveFunction,
@@ -46,13 +48,39 @@ async function main() {
 		return getBestMove(board, player, legalMoves, 2);
 	};
 
+	function makeGetMoveNeuralNet(model: tf.LayersModel): GetMoveFunction {
+		return async (board, player, legalMoves) => {
+			const scores = await (model.predict(
+				tf.tensor([board.map(cell => cell * player)], [1, 64]),
+			) as tf.Tensor).dataSync();
+
+			let move = legalMoves[0];
+			let score = -Infinity;
+			for (const currentMove of legalMoves) {
+				const index = coordToIndex(currentMove);
+				const currentScore = scores[index];
+				if (currentScore > score) {
+					score = currentScore;
+					move = currentMove;
+				}
+			}
+
+			return move;
+		};
+	}
+
+	const getMoveNeuralNet1Hidden = makeGetMoveNeuralNet(
+		await tf.loadLayersModel("file://./models/1-hidden/model.json"),
+	);
+
 	const players = {
 		getMoveMinimax2,
 		getMoveRandom,
+		getMoveNeuralNet1Hidden,
 	};
 
 	const winRate = await winRateOfA(
-		players.getMoveMinimax2,
+		players.getMoveNeuralNet1Hidden,
 		players.getMoveRandom,
 	);
 
