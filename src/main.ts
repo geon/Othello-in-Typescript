@@ -91,17 +91,19 @@ const getMoveMinimax: GetMoveFunction = async (board, player, legalMoves) => {
 	return aiMove;
 };
 
-const players = {
-	getMoveUser,
-	getMoveMinimax,
-};
 
-const competitors = {
-	"1": players.getMoveUser,
-	"-1": players.getMoveMinimax,
-};
 
 async function main(): Promise<void> {
+	const players = {
+		getMoveUser,
+		getMoveMinimax,
+	};
+
+	const competitors = {
+		"1": players.getMoveUser,
+		"-1": players.getMoveMinimax,
+	};
+
 	const result = await play(async (board, player, legalMoves) => {
 		return competitors[player](board, player, legalMoves);
 	});
