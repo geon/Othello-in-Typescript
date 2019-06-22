@@ -318,12 +318,14 @@ export const startBoard: Board = [
 	...[0, 0, 0, 0, 0, 0, 0, 0],
 ] as Board;
 
+export type GetMoveFunction = (
+	board: Board,
+	player: Player,
+	legalMoves: ReadonlyArray<Coord>,
+) => Promise<Coord>;
+
 export async function play(
-	getMove: (
-		board: Board,
-		player: Player,
-		legalMoves: ReadonlyArray<Coord>,
-	) => Promise<Coord>,
+	getMove: GetMoveFunction,
 ): Promise<{ readonly board: Board; readonly winner: Player | undefined }> {
 	let player: Player = 1;
 	let board = startBoard;
