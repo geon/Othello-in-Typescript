@@ -15,7 +15,7 @@ module.exports = {
 	},
 	devServer: {
 		host: "0.0.0.0",
-		contentBase: path.join(__dirname, "src"),
+		contentBase:[path.join(__dirname, "src"), path.join(__dirname, "models")],
 		stats: {
 			assets: false,
 			hash: false,

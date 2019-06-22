@@ -8,6 +8,7 @@ import {
 	Cell,
 	coordToIndex,
 } from "./othello";
+import * as tf from "@tensorflow/tfjs-node";
 
 export async function* generateTrainingData(): AsyncIterableIterator<{
 	readonly board: ReadonlyArray<Cell>;
@@ -62,11 +63,53 @@ export async function* generateTrainingData(): AsyncIterableIterator<{
 }
 
 async function main2() {
+	const modelUri = "file://./models/1-hidden";
+
+	let model: tf.LayersModel;
+	try {
+		model = await tf.loadLayersModel(modelUri);
+	} catch (error) {
+		model = tf.sequential({
+			layers: [
+				tf.layers.dense({ units: 64, activation: "tanh", inputShape: [64] }),
+				tf.layers.dense({ units: 64, activation: "tanh" }),
+				tf.layers.dense({ units: 64, activation: "tanh" }),
+			],
+		});
+
+		model.compile({
+			optimizer: "adam",
+			loss: "meanSquaredError",
+			metrics: ["accuracy"],
+		});
+	}
+
 	const generator = generateTrainingData();
 
-	for (let i = 0; i < 200; ++i) {
-		const trainingData = await generator.next();
-		console.log(trainingData.value.scores);
+	const batchSize = 1000;
+	for (;;) {
+		const trainingData = [];
+		for (let i = 0; i < batchSize; ++i) {
+			trainingData.push((await generator.next()).value);
+		}
+
+		const data = tf.tensor(
+			trainingData.map(boardAnsScore => boardAnsScore.board),
+			[batchSize, 64],
+		);
+		const labels = tf.tensor(
+			trainingData.map(boardAnsScore => boardAnsScore.scores),
+			[batchSize, 64],
+		);
+
+		const info = await model.fit(data, labels, {
+			epochs: 100,
+			batchSize,
+		});
+
+		console.log("Accuracy", info.history.acc);
+
+		await model.save(modelUri);
 	}
 }
 
