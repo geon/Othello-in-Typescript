@@ -73,14 +73,19 @@ async function main() {
 		await tf.loadLayersModel("file://./models/1-hidden/model.json"),
 	);
 
+	const getMoveNeuralNet8Hidden = makeGetMoveNeuralNet(
+		await tf.loadLayersModel("file://./models/8-hidden/model.json"),
+	);
+
 	const players = {
 		getMoveMinimax2,
 		getMoveRandom,
 		getMoveNeuralNet1Hidden,
+		getMoveNeuralNet8Hidden,
 	};
 
 	const winRate = await winRateOfA(
-		players.getMoveNeuralNet1Hidden,
+		players.getMoveNeuralNet8Hidden,
 		players.getMoveRandom,
 	);
 

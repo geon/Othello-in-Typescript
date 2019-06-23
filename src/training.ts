@@ -63,7 +63,7 @@ export async function* generateTrainingData(): AsyncIterableIterator<{
 }
 
 async function main() {
-	const modelUri = "file://./models/1-hidden";
+	const modelUri = "file://./models/8-hidden";
 
 	let model: tf.LayersModel;
 	try {
@@ -72,6 +72,13 @@ async function main() {
 		model = tf.sequential({
 			layers: [
 				tf.layers.dense({ units: 64, activation: "tanh", inputShape: [64] }),
+				tf.layers.dense({ units: 64, activation: "tanh" }),
+				tf.layers.dense({ units: 64, activation: "tanh" }),
+				tf.layers.dense({ units: 64, activation: "tanh" }),
+				tf.layers.dense({ units: 64, activation: "tanh" }),
+				tf.layers.dense({ units: 64, activation: "tanh" }),
+				tf.layers.dense({ units: 64, activation: "tanh" }),
+				tf.layers.dense({ units: 64, activation: "tanh" }),
 				tf.layers.dense({ units: 64, activation: "tanh" }),
 				tf.layers.dense({ units: 64, activation: "tanh" }),
 			],
