@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "tape --require ts-node/register \"test/**/*.ts\" | tap-spec",
     "evaluate": "node --require ts-node/register src/evaluation.ts",
     "start": "webpack-dev-server -d",
     "build:clean": "rm -rf dist",
@@ -16,9 +15,6 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^10.12.21",
-    "@types/tape": "^4.2.33",
-    "tap-spec": "^5.0.0",
-    "tape": "^4.9.2",
     "ts-loader": "^5.3.3",
     "typescript": "^3.3.1",
     "webpack": "^4.29.6",
