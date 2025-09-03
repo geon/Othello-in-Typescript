@@ -1,5 +1,4 @@
 import {
-	getBestMove,
 	Board,
 	play,
 	Coord,
@@ -7,6 +6,7 @@ import {
 	coordToIndex,
 	GetMoveFunction,
 } from "./othello";
+import { getBestMove } from "./miniMax";
 
 function printBoard(
 	board: Board,
@@ -15,7 +15,7 @@ function printBoard(
 	legalMoves?: ReadonlyArray<Coord>,
 ): Promise<Coord> {
 	let onClick!: (pos: Coord) => void;
-	const click = new Promise<Coord>(resolve => (onClick = resolve));
+	const click = new Promise<Coord>((resolve) => (onClick = resolve));
 
 	let pl1count = 0;
 	let pl2count = 0;
@@ -39,15 +39,12 @@ function printBoard(
 
 			const button = document.createElement("button");
 			legalMoves &&
-				legalMoves.some(legalMove => coordsAreEqual(legalMove, moveCoord)) &&
+				legalMoves.some((legalMove) => coordsAreEqual(legalMove, moveCoord)) &&
 				button.addEventListener("click", () => onClick(moveCoord));
 
 			button.style.width = "2em";
 			button.style.height = "2em";
-			if (
-				markedPosition &&
-				(y === markedPosition.y && x === markedPosition.x)
-			) {
+			if (markedPosition && y === markedPosition.y && x === markedPosition.x) {
 				button.innerText = "X";
 			}
 
@@ -87,11 +84,9 @@ const getMoveUser: GetMoveFunction = async (board, player, legalMoves) => {
 const getMoveMinimax: GetMoveFunction = async (board, player, legalMoves) => {
 	const aiMove = getBestMove(board, player, legalMoves);
 	printBoard(board, aiMove, player);
-	await new Promise(res => setTimeout(res, 200));
+	await new Promise((res) => setTimeout(res, 200));
 	return aiMove;
 };
-
-
 
 async function main(): Promise<void> {
 	const players = {
@@ -109,7 +104,7 @@ async function main(): Promise<void> {
 	});
 
 	printBoard(result.board, undefined, result.winner || 0);
-	await new Promise(res => setTimeout(res, 1000));
+	await new Promise((res) => setTimeout(res, 1000));
 
 	alert("Game over.");
 }
