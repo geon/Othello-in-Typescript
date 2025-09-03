@@ -1,9 +1,5 @@
-import {
-	play,
-	getBestMove,
-	GetMoveFunction,
-	randomArrayElement,
-} from "./othello";
+import { play, getBestMove, GetMoveFunction } from "./othello";
+import { randomArrayElement } from "./fp";
 
 async function winRateOfA(
 	a: GetMoveFunction,

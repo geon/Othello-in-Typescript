@@ -1,3 +1,5 @@
+import { randomArrayElement } from "./fp";
+
 export type Player = -1 | 1;
 export type Cell = Player | 0;
 export type Board = ReadonlyArray<Cell>;
@@ -155,13 +157,6 @@ export function getBestMove(
 	return randomArrayElement(bestMoves);
 }
 
-export function randomArrayElement<T>(array: ReadonlyArray<T>): T {
-	if (!array.length) {
-		throw new Error("Can't pick an element from an empty array.");
-	}
-	return array[Math.floor(Math.random() * array.length)];
-}
-
 function miniMax(
 	board: Board,
 	player: Player,
@@ -169,7 +164,7 @@ function miniMax(
 	searchDepth: number,
 ): ReadonlyArray<{ readonly move: Coord; readonly score: number }> {
 	// Try the moves and score them.
-	return moveListPlayer.map(movePosition => {
+	return moveListPlayer.map((movePosition) => {
 		const newBoard = move(movePosition, board, player);
 		const score = evaluateBoard(newBoard, player, searchDepth);
 		return {
@@ -245,7 +240,7 @@ function evaluateBoard(
 function getBestScore(
 	scoredMoves: ReadonlyArray<{ readonly move: Coord; readonly score: number }>,
 ): number {
-	return Math.max(...scoredMoves.map(scoredMove => scoredMove.score));
+	return Math.max(...scoredMoves.map((scoredMove) => scoredMove.score));
 }
 
 //  The heuristicScores-values describes how valuable the pieces on these positions are.
