@@ -1,5 +1,5 @@
 import { play, GetMoveFunction } from "./othello";
-import { getBestMove } from "./miniMax";
+import * as MiniMax from "./miniMax";
 import { randomArrayElement } from "./fp";
 
 async function winRateOfA(
@@ -40,7 +40,7 @@ async function main() {
 		player,
 		legalMoves,
 	) => {
-		return getBestMove(board, player, legalMoves, 2);
+		return MiniMax.getBestMove(board, player, legalMoves, 2);
 	};
 
 	const players = {
