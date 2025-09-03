@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "evaluate": "node --require ts-node/register src/evaluation.ts",
+    "_evalueate": "node --no-warnings src/index.ts src/evaluation.ts",
+    "evaluate": "tsx src/evaluation.ts",
     "start": "webpack-dev-server -d",
     "build:clean": "rm -rf dist",
 		"build":
@@ -15,7 +16,6 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^10.12.21",
-    "ts-loader": "^5.3.3",
     "typescript": "^3.3.1",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
