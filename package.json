@@ -6,7 +6,7 @@
   "scripts": {
     "_evalueate": "node --no-warnings src/index.ts src/evaluation.ts",
     "evaluate": "tsx src/evaluation.ts",
-    "tsc": "tsc",
+    "tsc": "tsc --noEmit",
     "dev": "vite",
     "build": "vite build",
     "publish": "npm run build && publish.sh"
@@ -14,7 +14,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "typescript": "^3.3.1",
+    "typescript": "^6.0.3",
     "vite": "^8.0.16"
   },
   "prettier": {
