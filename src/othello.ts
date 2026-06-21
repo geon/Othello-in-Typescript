@@ -156,7 +156,7 @@ export function heuristicScore(board: Board, player: Player): number {
 
 	// Reward the player if he has more (weighted) pieces than the opponent.
 	for (let i = 0; i < 64; ++i) {
-		score += heuristicScores[i] * player * board[i];
+		score += heuristicScores[i]! * player * board[i]!;
 	}
 
 	return score;
