@@ -7,6 +7,7 @@
     "_evalueate": "node --no-warnings src/index.ts src/evaluation.ts",
     "evaluate": "tsx src/evaluation.ts",
     "tsc": "tsc --noEmit",
+    "test": "vitest",
     "dev": "vite",
     "build": "vite build",
     "publish": "npm run build && publish.sh"
@@ -15,7 +16,8 @@
   "license": "ISC",
   "devDependencies": {
     "typescript": "^6.0.3",
-    "vite": "^8.0.16"
+    "vite": "^8.0.16",
+    "vitest": "^4.1.9"
   },
   "prettier": {
     "useTabs": true,
