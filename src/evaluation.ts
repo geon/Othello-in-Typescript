@@ -64,20 +64,28 @@ const getMoveMinimax3: GetMoveFunction = async (gameState) => {
 	return getBestMove(gameState, miniMax(3, heuristicScore));
 };
 
-const getMoveNeuralNet1Hidden = makeGetMoveNeuralNet(
-	await tf.loadLayersModel("file://./models/1-hidden/model.json"),
-);
+export async function makeGetMoveNeuralNet1Hidden() {
+	const getMoveNeuralNet1Hidden = makeGetMoveNeuralNet(
+		await tf.loadLayersModel("file://./models/1-hidden/model.json"),
+	);
 
-const getMoveNeuralNet8Hidden = makeGetMoveNeuralNet(
-	await tf.loadLayersModel("file://./models/8-hidden/model.json"),
-);
+	return getMoveNeuralNet1Hidden;
+}
+
+export async function makeGetMoveNeuralNet8Hidden() {
+	const getMoveNeuralNet8Hidden = makeGetMoveNeuralNet(
+		await tf.loadLayersModel("file://./models/8-hidden/model.json"),
+	);
+
+	return getMoveNeuralNet8Hidden;
+}
 
 const players = {
 	getMoveMinimax2,
 	getMoveMinimax3,
 	getMoveRandom,
-	getMoveNeuralNet1Hidden,
-	getMoveNeuralNet8Hidden,
+	getMoveNeuralNet1Hidden: await makeGetMoveNeuralNet1Hidden(),
+	getMoveNeuralNet8Hidden: await makeGetMoveNeuralNet8Hidden(),
 };
 
 async function main() {
