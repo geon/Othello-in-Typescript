@@ -29,71 +29,58 @@ async function winRateOfA(
 	return wins / numMatches;
 }
 
-async function main() {
-	const getMoveRandom: GetMoveFunction = async (
-		//
-		gameState,
-	) => {
-		if (gameState.type !== "playing") {
-			throw new Error("Missing legalMoves.");
+function makeGetMoveNeuralNet(model: tf.LayersModel): GetMoveFunction {
+	return async ({ board, player, legalMoves }) => {
+		const scores = await (
+			model.predict(
+				tf.tensor([board.map((cell) => cell * player)], [1, 64]),
+			) as tf.Tensor
+		).dataSync();
+
+		let move = checkedAccess(legalMoves, 0);
+		let score = -Infinity;
+		for (const currentMove of legalMoves) {
+			const index = coordToIndex(currentMove);
+			const currentScore = checkedAccess(scores, index);
+			if (currentScore > score) {
+				score = currentScore;
+				move = currentMove;
+			}
 		}
 
-		return randomArrayElement(gameState.legalMoves);
+		return move;
 	};
+}
 
-	const getMoveMinimax2: GetMoveFunction = async (
-		//
-		gameState,
-	) => {
-		return getBestMove(gameState, miniMax(2, heuristicScore));
-	};
+const getMoveRandom: GetMoveFunction = async ({ legalMoves }) => {
+	return randomArrayElement(legalMoves);
+};
 
-	const getMoveMinimax3: GetMoveFunction = async (
-		//
-		gameState,
-	) => {
-		return getBestMove(gameState, miniMax(3, heuristicScore));
-	};
+const getMoveMinimax2: GetMoveFunction = async (gameState) => {
+	return getBestMove(gameState, miniMax(2, heuristicScore));
+};
 
-	function makeGetMoveNeuralNet(model: tf.LayersModel): GetMoveFunction {
-		return async ({ board, player, legalMoves }) => {
-			const scores = await (
-				model.predict(
-					tf.tensor([board.map((cell) => cell * player)], [1, 64]),
-				) as tf.Tensor
-			).dataSync();
+const getMoveMinimax3: GetMoveFunction = async (gameState) => {
+	return getBestMove(gameState, miniMax(3, heuristicScore));
+};
 
-			let move = checkedAccess(legalMoves, 0);
-			let score = -Infinity;
-			for (const currentMove of legalMoves) {
-				const index = coordToIndex(currentMove);
-				const currentScore = checkedAccess(scores, index);
-				if (currentScore > score) {
-					score = currentScore;
-					move = currentMove;
-				}
-			}
+const getMoveNeuralNet1Hidden = makeGetMoveNeuralNet(
+	await tf.loadLayersModel("file://./models/1-hidden/model.json"),
+);
 
-			return move;
-		};
-	}
+const getMoveNeuralNet8Hidden = makeGetMoveNeuralNet(
+	await tf.loadLayersModel("file://./models/8-hidden/model.json"),
+);
 
-	const getMoveNeuralNet1Hidden = makeGetMoveNeuralNet(
-		await tf.loadLayersModel("file://./models/1-hidden/model.json"),
-	);
+const players = {
+	getMoveMinimax2,
+	getMoveMinimax3,
+	getMoveRandom,
+	getMoveNeuralNet1Hidden,
+	getMoveNeuralNet8Hidden,
+};
 
-	const getMoveNeuralNet8Hidden = makeGetMoveNeuralNet(
-		await tf.loadLayersModel("file://./models/8-hidden/model.json"),
-	);
-
-	const players = {
-		getMoveMinimax2,
-		getMoveMinimax3,
-		getMoveRandom,
-		getMoveNeuralNet1Hidden,
-		getMoveNeuralNet8Hidden,
-	};
-
+async function main() {
 	const winRate = await winRateOfA(
 		players.getMoveNeuralNet8Hidden,
 		players.getMoveRandom,
