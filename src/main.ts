@@ -4,8 +4,8 @@ import { getBestMove } from "./miniMax";
 
 function printBoard(
 	board: Board,
-	markedPosition: Coord | undefined,
 	player: number,
+	markedPosition: Coord | undefined,
 	legalMoves?: ReadonlyArray<Coord>,
 ): Promise<Coord> {
 	let onClick!: (pos: Coord) => void;
@@ -71,13 +71,13 @@ function printBoard(
 
 // User.
 const getMoveUser: GetMoveFunction = async (board, player, legalMoves) => {
-	return printBoard(board, undefined, player, legalMoves);
+	return printBoard(board, player, undefined, legalMoves);
 };
 
 // AI
 const getMoveMinimax: GetMoveFunction = async (board, player, legalMoves) => {
 	const aiMove = getBestMove(board, player, legalMoves);
-	printBoard(board, aiMove, player);
+	printBoard(board, player, aiMove);
 	await new Promise((res) => setTimeout(res, 200));
 	return aiMove;
 };
@@ -97,7 +97,7 @@ async function main(): Promise<void> {
 		return competitors[player](board, player, legalMoves);
 	});
 
-	printBoard(result.board, undefined, result.winner || 0);
+	printBoard(result.board, result.winner || 0, undefined);
 	await new Promise((res) => setTimeout(res, 1000));
 
 	alert("Game over.");
