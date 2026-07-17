@@ -20,6 +20,9 @@ export function getBestMove(
 	const scoredMoves = miniMax(board, player, legalMoves, smartness);
 
 	const firstLegalMove = legalMoves[0];
+	if (!firstLegalMove) {
+		throw new Error("Missing firstLegalMove.");
+	}
 
 	let bestScore = -Infinity;
 	let bestMoves = [firstLegalMove];
