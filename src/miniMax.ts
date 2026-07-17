@@ -2,13 +2,13 @@ import { randomArrayElement } from "./fp";
 import {
 	Board,
 	Player,
-	Coord,
 	doMove,
 	getBestScore,
 	getLegalMoves,
 	getOpponent,
 	heuristicScore,
 } from "./othello";
+import { Coord } from "./coord";
 
 export function getBestMove(
 	board: Board,

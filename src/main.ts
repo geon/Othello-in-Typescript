@@ -1,11 +1,5 @@
-import {
-	Board,
-	play,
-	Coord,
-	coordsAreEqual,
-	coordToIndex,
-	GetMoveFunction,
-} from "./othello";
+import { Board, play, GetMoveFunction } from "./othello";
+import { Coord, coordsAreEqual, coordToIndex } from "./coord";
 import { getBestMove } from "./miniMax";
 
 function printBoard(
