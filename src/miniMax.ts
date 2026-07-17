@@ -46,11 +46,11 @@ export function miniMax(
 ): ReadonlyArray<{ readonly move: Coord; readonly score: number }> {
 	// Try the moves and score them.
 	return moveListPlayer.map((movePosition) => {
-		const newBoard = doMove(gameState, movePosition);
+		const newGameState = doMove(gameState, movePosition);
 		const score = evaluateBoard(
 			{
-				board: newBoard,
-				player: getOpponent(gameState.player),
+				board: newGameState.board,
+				player: newGameState.player,
 			},
 			searchDepth,
 		);
