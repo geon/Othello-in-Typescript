@@ -31,7 +31,7 @@ export function getLegalMoves(
 	const legalMoves = [];
 	for (let i = 0; i <= 63; i++) {
 		const position = indexToCoord(i);
-		if (moveIsLegal(position, board, player)) {
+		if (moveIsLegal(board, player, position)) {
 			legalMoves.push(position);
 		}
 	}
@@ -44,9 +44,9 @@ export function getLegalMoves(
 }
 
 export function moveIsLegal(
-	position: Coord,
 	board: Board,
 	player: Player,
+	position: Coord,
 ): boolean {
 	// We may only put pieces in empty squares.
 	if (board[coordToIndex(position)]) {
