@@ -140,7 +140,7 @@ export function heuristicScore(board: Board, player: Player): number {
 }
 
 // Make shure you MAY move before you call this function.
-export function doMove(position: Coord, board: Board, player: Player): Board {
+export function doMove(board: Board, player: Player, position: Coord): Board {
 	const newBoard = [...board];
 	newBoard[coordToIndex(position)] = player;
 
@@ -216,7 +216,7 @@ export async function play(
 		let movePosition = await getMove(board, player, legalMoves);
 
 		// Make the move.
-		board = doMove(movePosition, board, player);
+		board = doMove(board, player, movePosition);
 
 		// Switch player.
 		player = getOpponent(player);

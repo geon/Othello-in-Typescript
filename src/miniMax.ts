@@ -49,7 +49,7 @@ export function miniMax(
 ): ReadonlyArray<{ readonly move: Coord; readonly score: number }> {
 	// Try the moves and score them.
 	return moveListPlayer.map((movePosition) => {
-		const newBoard = doMove(movePosition, board, player);
+		const newBoard = doMove(board, player, movePosition);
 		const score = evaluateBoard(newBoard, player, searchDepth);
 		return {
 			move: movePosition,
