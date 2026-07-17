@@ -4,6 +4,12 @@ export type Player = -1 | 1;
 export type Cell = Player | 0;
 export type Board = ReadonlyArray<Cell>;
 
+export type GameState = {
+	readonly board: Board;
+	readonly player: Player;
+	// readonly legalMoves: ReadonlyArray<Coord> | undefined;
+};
+
 // List-format:
 //  Every list is a number[64] where the first element tells how long the list is.
 //  For example, the first list generated will be: {4, 19, 29, 34, 44, ... }, where the rest of the list is irrelevant.
@@ -140,7 +146,7 @@ export function heuristicScore(board: Board, player: Player): number {
 }
 
 // Make shure you MAY move before you call this function.
-export function doMove(board: Board, player: Player, position: Coord): Board {
+export function doMove({ board, player }: GameState, position: Coord): Board {
 	const newBoard = [...board];
 	newBoard[coordToIndex(position)] = player;
 
@@ -187,8 +193,7 @@ export const startBoard: Board = [
 ] as Board;
 
 export type GetMoveFunction = (
-	board: Board,
-	player: Player,
+	gameState: GameState,
 	legalMoves: ReadonlyArray<Coord>,
 ) => Promise<Coord>;
 
@@ -213,10 +218,10 @@ export async function play(
 		}
 
 		// Pick a move.
-		let movePosition = await getMove(board, player, legalMoves);
+		let movePosition = await getMove({ board, player }, legalMoves);
 
 		// Make the move.
-		board = doMove(board, player, movePosition);
+		board = doMove({ board, player }, movePosition);
 
 		// Switch player.
 		player = getOpponent(player);

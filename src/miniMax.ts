@@ -1,7 +1,6 @@
 import { randomArrayElement } from "./fp";
 import {
-	Board,
-	Player,
+	GameState,
 	doMove,
 	getBestScore,
 	getLegalMoves,
@@ -11,13 +10,12 @@ import {
 import { Coord } from "./coord";
 
 export function getBestMove(
-	board: Board,
-	player: Player,
+	gameState: GameState,
 	// 0 = easy, 1 = normal, 3 = hard, 4 = very hard.
 	legalMoves: ReadonlyArray<Coord>,
 	smartness: number = 4,
 ): Coord {
-	const scoredMoves = miniMax(board, player, legalMoves, smartness);
+	const scoredMoves = miniMax(gameState, legalMoves, smartness);
 
 	const firstLegalMove = legalMoves[0];
 	if (!firstLegalMove) {
@@ -42,15 +40,20 @@ export function getBestMove(
 }
 
 export function miniMax(
-	board: Board,
-	player: Player,
+	gameState: GameState,
 	moveListPlayer: ReadonlyArray<Coord>,
 	searchDepth: number,
 ): ReadonlyArray<{ readonly move: Coord; readonly score: number }> {
 	// Try the moves and score them.
 	return moveListPlayer.map((movePosition) => {
-		const newBoard = doMove(board, player, movePosition);
-		const score = evaluateBoard(newBoard, player, searchDepth);
+		const newBoard = doMove(gameState, movePosition);
+		const score = evaluateBoard(
+			{
+				board: newBoard,
+				player: gameState.player,
+			},
+			searchDepth,
+		);
 		return {
 			move: movePosition,
 			score,
@@ -59,8 +62,7 @@ export function miniMax(
 }
 
 export function evaluateBoard(
-	board: Board,
-	player: Player,
+	{ board, player }: GameState,
 	searchDepth: number,
 ): number {
 	const moveListOpponent = getLegalMoves(board, getOpponent(player));
@@ -78,7 +80,14 @@ export function evaluateBoard(
 	if (moveListOpponent) {
 		// Switch player.
 		return -getBestScore(
-			miniMax(board, getOpponent(player), moveListOpponent, searchDepth - 1),
+			miniMax(
+				{
+					board,
+					player: getOpponent(player),
+				},
+				moveListOpponent,
+				searchDepth - 1,
+			),
 		);
 	}
 
@@ -88,7 +97,7 @@ export function evaluateBoard(
 		if (moveListPlayer) {
 			// The player can move again.
 			return getBestScore(
-				miniMax(board, player, moveListPlayer, searchDepth - 1),
+				miniMax({ board, player }, moveListPlayer, searchDepth - 1),
 			);
 		}
 	}
