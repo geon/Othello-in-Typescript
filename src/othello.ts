@@ -15,11 +15,11 @@ export function coordToIndex(coord: Coord): number {
 	return coord.x + coord.y * 8;
 }
 
-function addCoord(a: Coord, b: Coord): Coord {
+export function addCoord(a: Coord, b: Coord): Coord {
 	return { x: a.x + b.x, y: a.y + b.y };
 }
 
-function subCoord(a: Coord, b: Coord): Coord {
+export function subCoord(a: Coord, b: Coord): Coord {
 	return { x: a.x - b.x, y: a.y - b.y };
 }
 
