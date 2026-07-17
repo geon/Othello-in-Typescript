@@ -19,8 +19,10 @@ export function getBestMove(
 ): Coord {
 	const scoredMoves = miniMax(board, player, legalMoves, smartness);
 
+	const firstLegalMove = legalMoves[0];
+
 	let bestScore = -Infinity;
-	let bestMoves = [legalMoves[0]];
+	let bestMoves = [firstLegalMove];
 
 	// Keep track of all moves sharing the highest score.
 	for (const scoredMove of scoredMoves) {
