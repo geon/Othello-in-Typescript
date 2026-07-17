@@ -14,7 +14,13 @@ export function makeGameState({
 	board,
 	player,
 }: Pick<GameState, "board" | "player">): GameState {
-	const legalMoves = getLegalMoves(board, player);
+	let legalMoves = getLegalMoves(board, player);
+
+	// If no legal moves, switch player.
+	if (!legalMoves) {
+		player = getOpponent(player);
+		legalMoves = getLegalMoves(board, player);
+	}
 
 	return {
 		board,
@@ -223,17 +229,9 @@ export async function play(
 	});
 
 	for (;;) {
-		// If no legal moves, switch player.
+		// If none of the players have lagal moves, game over.
 		if (!gameState.legalMoves) {
-			gameState = makeGameState({
-				board: gameState.board,
-				player: getOpponent(gameState.player),
-			});
-
-			// If none of the players have lagal moves, game over.
-			if (!gameState.legalMoves) {
-				break;
-			}
+			break;
 		}
 
 		// Pick a move.
