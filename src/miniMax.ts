@@ -65,7 +65,8 @@ export function evaluateBoard(
 	{ board, player }: GameState,
 	searchDepth: number,
 ): number {
-	const moveListOpponent = getLegalMoves(board, getOpponent(player));
+	const opponent = getOpponent(player);
+	const moveListOpponent = getLegalMoves(board, opponent);
 
 	if (searchDepth <= 1) {
 		// The max depth is reached. Use simple heuristics.
@@ -83,7 +84,7 @@ export function evaluateBoard(
 			miniMax(
 				{
 					board,
-					player: getOpponent(player),
+					player: opponent,
 				},
 				moveListOpponent,
 				searchDepth - 1,
@@ -93,7 +94,7 @@ export function evaluateBoard(
 
 	{
 		// The opponent has no legal moves, so don't switch player.
-		const moveListPlayer = getLegalMoves(board, getOpponent(player));
+		const moveListPlayer = getLegalMoves(board, opponent);
 		if (moveListPlayer) {
 			// The player can move again.
 			return getBestScore(
