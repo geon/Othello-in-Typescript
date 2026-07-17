@@ -47,13 +47,7 @@ export function miniMax(
 	// Try the moves and score them.
 	return moveListPlayer.map((movePosition) => {
 		const newGameState = doMove(gameState, movePosition);
-		const score = evaluateBoard(
-			{
-				board: newGameState.board,
-				player: newGameState.player,
-			},
-			searchDepth,
-		);
+		const score = evaluateBoard(newGameState, searchDepth);
 		return {
 			move: movePosition,
 			score,
