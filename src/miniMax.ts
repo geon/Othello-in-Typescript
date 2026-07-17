@@ -50,7 +50,7 @@ export function miniMax(
 		const score = evaluateBoard(
 			{
 				board: newBoard,
-				player: gameState.player,
+				player: getOpponent(gameState.player),
 			},
 			searchDepth,
 		);
@@ -62,10 +62,10 @@ export function miniMax(
 }
 
 export function evaluateBoard(
-	{ board, player }: GameState,
+	{ board, player: opponent }: GameState,
 	searchDepth: number,
 ): number {
-	const opponent = getOpponent(player);
+	const player = getOpponent(opponent);
 	const moveListOpponent = getLegalMoves(board, opponent);
 
 	if (searchDepth <= 1) {
