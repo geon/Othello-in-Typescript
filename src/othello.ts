@@ -153,15 +153,17 @@ const heuristicScores: ReadonlyArray<number> = [
 	...[8, -4, 6, 4, 4, 6, -4, 8],
 ];
 
-export function heuristicScore({ board, player }: GameState): number {
+export function heuristicScore({
+	board,
+	player,
+	legalMoves: moveListPlayer,
+}: GameState): number {
 	let score = 0;
 
 	// Reward the player if he has more (weighted) pieces than the opponent.
 	for (let i = 0; i < 64; ++i) {
 		score += heuristicScores[i]! * player * board[i]!;
 	}
-
-	const moveListPlayer = getLegalMoves(board, player);
 
 	const opponent = getOpponent(player);
 	const moveListOpponent = getLegalMoves(board, opponent);
