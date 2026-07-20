@@ -5,7 +5,6 @@ import {
 	getBestScore,
 	getPieceBalance,
 	heuristicScore,
-	makeGameState,
 } from "./othello";
 import { Coord } from "./coord";
 
@@ -65,35 +64,21 @@ export function miniMax(
 }
 
 export function evaluateBoard(
-	{ board, player, legalMoves: moveListPlayer }: GameState,
+	gameState: GameState,
 	searchDepth: number,
 ): number {
 	if (searchDepth <= 1) {
 		// The max depth is reached. Use simple heuristics.
-		return heuristicScore(
-			makeGameState({
-				board,
-				player,
-			}),
-		);
+		return heuristicScore(gameState);
 	}
 
-	if (!moveListPlayer) {
+	if (!gameState.legalMoves) {
 		// Noone can move. Game over.
 
 		// TODO: Make the AI prioritize the greatest win, not just any win.
 		// Reward the winner.
-		return Math.sign(getPieceBalance({ board, player })) * Infinity;
+		return Math.sign(getPieceBalance(gameState)) * Infinity;
 	}
 
-	return getBestScore(
-		miniMax(
-			{
-				board,
-				player,
-				legalMoves: moveListPlayer,
-			},
-			searchDepth - 1,
-		),
-	);
+	return getBestScore(miniMax(gameState, searchDepth - 1));
 }
