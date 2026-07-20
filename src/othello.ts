@@ -168,8 +168,9 @@ export function heuristicScore({ board, player }: GameState): number {
 
 	return (
 		score -
-		(moveListOpponent ? moveListOpponent.length : 0) +
-		(moveListPlayer ? moveListPlayer.length : 0)
+		//
+		(moveListOpponent?.length ?? 0) +
+		(moveListPlayer?.length ?? 0)
 	);
 }
 
