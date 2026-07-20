@@ -63,11 +63,10 @@ export function miniMax(
 }
 
 export function evaluateBoard(
-	{ board, player }: GameState,
+	{ board, player, legalMoves: moveListPlayer }: GameState,
 	searchDepth: number,
 ): number {
 	const opponent = getOpponent(player);
-	const moveListPlayer = getLegalMoves(board, player);
 
 	if (searchDepth <= 1) {
 		// The max depth is reached. Use simple heuristics.
