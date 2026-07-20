@@ -141,6 +141,19 @@ export function getBestScore(
 	return Math.max(...scoredMoves.map((scoredMove) => scoredMove.score));
 }
 
+export function getPieceBalance({
+	board,
+	player,
+}: Pick<GameState, "board" | "player">): number {
+	let score = 0;
+
+	for (const cell of board) {
+		score += player * cell;
+	}
+
+	return score;
+}
+
 //  The heuristicScores-values describes how valuable the pieces on these positions are.
 const heuristicScores: ReadonlyArray<number> = [
 	...[8, -4, 6, 4, 4, 6, -4, 8],

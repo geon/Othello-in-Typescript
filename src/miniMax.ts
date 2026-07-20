@@ -5,6 +5,7 @@ import {
 	getBestScore,
 	getLegalMoves,
 	getOpponent,
+	getPieceBalance,
 	heuristicScore,
 	makeGameState,
 } from "./othello";
@@ -111,24 +112,8 @@ export function evaluateBoard(
 	}
 
 	// Noone can move. Game over.
-	// Count the pieces.
-	let playerCount = 0;
-	let opponentCount = 0;
-	for (const piece of board) {
-		if (piece === opponent) {
-			playerCount++;
-		} else if (piece === -opponent) {
-			opponentCount++;
-		}
-	}
+
+	// TODO: Make the AI prioritize the greatest win, not just any win.
 	// Reward the winner.
-	if (playerCount > opponentCount) {
-		// TODO: Return a high score, plus the piece count, so the AI prioritizes the greatest win, not just any win.
-		return Infinity;
-	} else if (playerCount < opponentCount) {
-		// TODO: Return a LOW score, MINUS the opportunity count, so the AI prioritizes the smartest move, in case the opponent makes a mistake.
-		return -Infinity;
-	} else {
-		return 0;
-	}
+	return Math.sign(getPieceBalance({ board, player })) * Infinity;
 }
