@@ -81,22 +81,22 @@ export function evaluateBoard(
 		);
 	}
 
-	if (moveListPlayer) {
-		return getBestScore(
-			miniMax(
-				{
-					board,
-					player,
-					legalMoves: moveListPlayer,
-				},
-				searchDepth - 1,
-			),
-		);
+	if (!moveListPlayer) {
+		// Noone can move. Game over.
+
+		// TODO: Make the AI prioritize the greatest win, not just any win.
+		// Reward the winner.
+		return Math.sign(getPieceBalance({ board, player })) * Infinity;
 	}
 
-	// Noone can move. Game over.
-
-	// TODO: Make the AI prioritize the greatest win, not just any win.
-	// Reward the winner.
-	return Math.sign(getPieceBalance({ board, player })) * Infinity;
+	return getBestScore(
+		miniMax(
+			{
+				board,
+				player,
+				legalMoves: moveListPlayer,
+			},
+			searchDepth - 1,
+		),
+	);
 }
