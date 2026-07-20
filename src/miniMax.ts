@@ -3,7 +3,6 @@ import {
 	GameState,
 	doMove,
 	getBestScore,
-	getLegalMoves,
 	getOpponent,
 	getPieceBalance,
 	heuristicScore,
@@ -55,7 +54,10 @@ export function miniMax(
 	// Try the moves and score them.
 	return gameState.legalMoves.map((movePosition) => {
 		const newGameState = doMove(gameState, movePosition);
-		const score = evaluateBoard(newGameState, searchDepth);
+		const score =
+			// Inverse the scoring if the move caused the player to switch.
+			(newGameState.player === gameState.player ? 1 : -1) *
+			evaluateBoard(newGameState, searchDepth);
 		return {
 			move: movePosition,
 			score,
@@ -71,7 +73,7 @@ export function evaluateBoard(
 
 	if (searchDepth <= 1) {
 		// The max depth is reached. Use simple heuristics.
-		return heuristicScore(
+		return -heuristicScore(
 			makeGameState({
 				board,
 				player: opponent,
@@ -80,8 +82,7 @@ export function evaluateBoard(
 	}
 
 	if (moveListPlayer) {
-		// Switch player.
-		return -getBestScore(
+		return getBestScore(
 			miniMax(
 				{
 					board,
@@ -91,24 +92,6 @@ export function evaluateBoard(
 				searchDepth - 1,
 			),
 		);
-	}
-
-	{
-		// The opponent has no legal moves, so don't switch player.
-		const moveListPlayer = getLegalMoves(board, player);
-		if (moveListPlayer) {
-			// The player can move again.
-			return getBestScore(
-				miniMax(
-					{
-						board,
-						player: opponent,
-						legalMoves: moveListPlayer,
-					},
-					searchDepth - 1,
-				),
-			);
-		}
 	}
 
 	// Noone can move. Game over.
