@@ -3,7 +3,6 @@ import {
 	GameState,
 	doMove,
 	getBestScore,
-	getOpponent,
 	getPieceBalance,
 	heuristicScore,
 	makeGameState,
@@ -69,14 +68,12 @@ export function evaluateBoard(
 	{ board, player, legalMoves: moveListPlayer }: GameState,
 	searchDepth: number,
 ): number {
-	const opponent = getOpponent(player);
-
 	if (searchDepth <= 1) {
 		// The max depth is reached. Use simple heuristics.
-		return -heuristicScore(
+		return heuristicScore(
 			makeGameState({
 				board,
-				player: opponent,
+				player,
 			}),
 		);
 	}
