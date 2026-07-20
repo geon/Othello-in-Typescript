@@ -50,14 +50,14 @@ export function miniMax(
 	}
 
 	// Try the moves and score them.
-	return gameState.legalMoves.map((movePosition) => {
-		const newGameState = doMove(gameState, movePosition);
+	return gameState.legalMoves.map((move) => {
+		const newGameState = doMove(gameState, move);
 		const score =
 			// Inverse the scoring if the move caused the player to switch.
 			(newGameState.player === gameState.player ? 1 : -1) *
 			evaluateBoard(newGameState, searchDepth);
 		return {
-			move: movePosition,
+			move,
 			score,
 		};
 	});
