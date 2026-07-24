@@ -7,6 +7,8 @@ import {
 } from "./othello";
 import { Coord, coordsAreEqual, coordToIndex } from "./coord";
 import { miniMax } from "./miniMax";
+import * as tf from "@tensorflow/tfjs";
+import { checkedAccess } from "./checked-access";
 
 function printBoard(
 	board: Board,
@@ -92,15 +94,51 @@ const getMoveMinimax: GetMoveFunction = async (gameState) => {
 	return aiMove;
 };
 
+function makeGetMoveNeuralNet(model: tf.LayersModel): GetMoveFunction {
+	return async ({ board, player, legalMoves }) => {
+		if (player === 1) {
+			// User.
+			return printBoard(board, player, undefined, legalMoves);
+		} else {
+			// AI
+			const scores = await (
+				model.predict(
+					tf.tensor([board.map((cell) => cell * player)], [1, 64]),
+				) as tf.Tensor
+			).dataSync();
+
+			let move = checkedAccess(legalMoves, 0);
+			let score = -Infinity;
+			for (const currentMove of legalMoves) {
+				const index = coordToIndex(currentMove);
+				const currentScore = checkedAccess(scores, index);
+				if (currentScore > score) {
+					score = currentScore;
+					move = currentMove;
+				}
+			}
+
+			printBoard(board, player, move);
+			await new Promise((res) => setTimeout(res, 200));
+			return move;
+		}
+	};
+}
+
 async function main(): Promise<void> {
+	const getMoveNeuralNet1Hidden = makeGetMoveNeuralNet(
+		await tf.loadLayersModel("http://localhost:8080/1-hidden/model.json"),
+	);
+
 	const players = {
 		getMoveUser,
 		getMoveMinimax,
+		getMoveNeuralNet1Hidden,
 	};
 
 	const competitors = {
 		"1": players.getMoveUser,
-		"-1": players.getMoveMinimax,
+		"-1": players.getMoveNeuralNet1Hidden,
 	};
 
 	const result = await play(async (gameState) => {
