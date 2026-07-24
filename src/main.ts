@@ -129,7 +129,8 @@ async function main(): Promise<void> {
 	};
 
 	const result = await play(async (gameState) => {
-		return competitors[gameState.player](gameState);
+		const move = competitors[gameState.player](gameState);
+		return move;
 	});
 
 	printBoard(result.board, result.winner || 0, undefined);
