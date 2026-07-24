@@ -106,8 +106,6 @@ function makeGetMoveNeuralNet(model: tf.LayersModel): GetMoveFunction {
 			}
 		}
 
-		printBoard(board, player, move);
-		await new Promise((res) => setTimeout(res, 200));
 		return move;
 	};
 }
@@ -129,7 +127,14 @@ async function main(): Promise<void> {
 	};
 
 	const result = await play(async (gameState) => {
-		const move = competitors[gameState.player](gameState);
+		const move = await competitors[gameState.player](gameState);
+
+		// -1: Opponent
+		if (gameState.player === -1) {
+			printBoard(gameState.board, gameState.player, move);
+			await new Promise((res) => setTimeout(res, 200));
+		}
+
 		return move;
 	});
 
