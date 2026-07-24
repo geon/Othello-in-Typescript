@@ -1,10 +1,9 @@
 import { play, GetMoveFunction, heuristicScore, getBestMove } from "./othello";
 import { miniMax } from "./miniMax";
 import { randomArrayElement } from "./fp";
-import {
-	makeGetMoveNeuralNet1Hidden,
-	makeGetMoveNeuralNet8Hidden,
-} from "./make-players";
+import { models } from "./models";
+import { getTfModel } from "./models-node";
+import { makeGetMoveNeuralNet } from "./make-players";
 
 async function winRateOfA(
 	a: GetMoveFunction,
@@ -47,8 +46,12 @@ async function main() {
 		getMoveMinimax2,
 		getMoveMinimax3,
 		getMoveRandom,
-		getMoveNeuralNet1Hidden: await makeGetMoveNeuralNet1Hidden(),
-		getMoveNeuralNet8Hidden: await makeGetMoveNeuralNet8Hidden(),
+		getMoveNeuralNet1Hidden: makeGetMoveNeuralNet(
+			await getTfModel(models._1_hidden),
+		),
+		getMoveNeuralNet8Hidden: makeGetMoveNeuralNet(
+			await getTfModel(models._8_hidden),
+		),
 	};
 
 	const winRate = await winRateOfA(

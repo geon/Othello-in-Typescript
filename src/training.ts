@@ -1,15 +1,19 @@
 import { Coord, coordToIndex } from "./coord";
-import { makeGetMoveNeuralNet8Hidden } from "./make-players";
+import { makeGetMoveNeuralNet } from "./make-players";
+import { getTfModel } from "./models-node";
+import { models } from "./models";
 import { play, GameStatePlaying, Cell } from "./othello";
 import * as tf from "@tensorflow/tfjs-node";
 
-export async function* generateTrainingData(): AsyncIterableIterator<{
-	board: ReadonlyArray<Cell>;
-	scores: ReadonlyArray<number>;
+export async function* generateTrainingData(
+	model: tf.LayersModel,
+): AsyncIterableIterator<{
+	readonly board: ReadonlyArray<Cell>;
+	readonly scores: ReadonlyArray<number>;
 }> {
 	for (;;) {
-		// Create a player from the model being trained for self-play.
-		const nnPlayer = await makeGetMoveNeuralNet8Hidden();
+		// Create a player to generate data from the same model being trained.
+		const nnPlayer = makeGetMoveNeuralNet(model);
 
 		const steps: Array<{
 			readonly gameState: GameStatePlaying;
@@ -54,35 +58,11 @@ export async function* generateTrainingData(): AsyncIterableIterator<{
 }
 
 async function main() {
-	const modelUri = "file://./models/8-hidden";
+	const model = models._8_hidden;
 
-	let model: tf.LayersModel;
-	try {
-		model = await tf.loadLayersModel(modelUri);
-	} catch (error) {
-		model = tf.sequential({
-			layers: [
-				tf.layers.dense({ units: 64, activation: "tanh", inputShape: [64] }),
-				tf.layers.dense({ units: 64, activation: "tanh" }),
-				tf.layers.dense({ units: 64, activation: "tanh" }),
-				tf.layers.dense({ units: 64, activation: "tanh" }),
-				tf.layers.dense({ units: 64, activation: "tanh" }),
-				tf.layers.dense({ units: 64, activation: "tanh" }),
-				tf.layers.dense({ units: 64, activation: "tanh" }),
-				tf.layers.dense({ units: 64, activation: "tanh" }),
-				tf.layers.dense({ units: 64, activation: "tanh" }),
-				tf.layers.dense({ units: 64, activation: "tanh" }),
-			],
-		});
+	let tfModel = await getTfModel(model);
 
-		model.compile({
-			optimizer: "adam",
-			loss: "meanSquaredError",
-			metrics: ["accuracy"],
-		});
-	}
-
-	const generator = generateTrainingData();
+	const generator = generateTrainingData(tfModel);
 
 	const batchSize = 1000;
 	for (;;) {
@@ -104,14 +84,14 @@ async function main() {
 			[batchSize, 64],
 		);
 
-		const info = await model.fit(data, labels, {
+		const info = await tfModel.fit(data, labels, {
 			epochs: 100,
 			batchSize,
 		});
 
 		console.log("Accuracy", info.history.acc);
 
-		await model.save(modelUri);
+		await tfModel.save(model.path);
 	}
 }
 
