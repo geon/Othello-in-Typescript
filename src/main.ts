@@ -89,32 +89,26 @@ const getMoveUser: GetMoveFunction = async ({ board, player, legalMoves }) => {
 
 function makeGetMoveNeuralNet(model: tf.LayersModel): GetMoveFunction {
 	return async ({ board, player, legalMoves }) => {
-		if (player === 1) {
-			// User.
-			return printBoard(board, player, undefined, legalMoves);
-		} else {
-			// AI
-			const scores = await (
-				model.predict(
-					tf.tensor([board.map((cell) => cell * player)], [1, 64]),
-				) as tf.Tensor
-			).dataSync();
+		const scores = await (
+			model.predict(
+				tf.tensor([board.map((cell) => cell * player)], [1, 64]),
+			) as tf.Tensor
+		).dataSync();
 
-			let move = checkedAccess(legalMoves, 0);
-			let score = -Infinity;
-			for (const currentMove of legalMoves) {
-				const index = coordToIndex(currentMove);
-				const currentScore = checkedAccess(scores, index);
-				if (currentScore > score) {
-					score = currentScore;
-					move = currentMove;
-				}
+		let move = checkedAccess(legalMoves, 0);
+		let score = -Infinity;
+		for (const currentMove of legalMoves) {
+			const index = coordToIndex(currentMove);
+			const currentScore = checkedAccess(scores, index);
+			if (currentScore > score) {
+				score = currentScore;
+				move = currentMove;
 			}
-
-			printBoard(board, player, move);
-			await new Promise((res) => setTimeout(res, 200));
-			return move;
 		}
+
+		printBoard(board, player, move);
+		await new Promise((res) => setTimeout(res, 200));
+		return move;
 	};
 }
 
