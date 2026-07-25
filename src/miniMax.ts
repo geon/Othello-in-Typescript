@@ -18,7 +18,13 @@ export function getBestMove(
 		throw new Error("Missing firstLegalMove.");
 	}
 
-	const scoredMoves = miniMax(gameState, smartness);
+	const scoredMoves = gameState.legalMoves.map((move) => {
+		const score = evaluateMove(gameState, move, smartness);
+		return {
+			move,
+			score,
+		};
+	});
 
 	return minBy(
 		scoredMoves,
@@ -31,15 +37,14 @@ export function getBestMove(
 export function miniMax(
 	gameState: GameStatePlaying,
 	searchDepth: number,
-): ReadonlyArray<{ readonly move: Coord; readonly score: number }> {
+): number {
 	// Try the moves and score them.
-	return gameState.legalMoves.map((move) => {
-		const score = evaluateMove(gameState, move, searchDepth);
-		return {
-			move,
-			score,
-		};
-	});
+	return Math.max(
+		...gameState.legalMoves.map((move) => {
+			const score = evaluateMove(gameState, move, searchDepth);
+			return score;
+		}),
+	);
 }
 
 function evaluateMove(
@@ -72,7 +77,5 @@ export function evaluateBoard(
 		return heuristicScore(gameState);
 	}
 
-	const scoredMoves = miniMax(gameState, searchDepth - 1);
-
-	return Math.max(...scoredMoves.map((scoredMove) => scoredMove.score));
+	return miniMax(gameState, searchDepth - 1);
 }
