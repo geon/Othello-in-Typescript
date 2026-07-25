@@ -1,9 +1,10 @@
 import { play, GetMoveFunction, heuristicScore, getBestMove } from "./othello";
 import { miniMax } from "./miniMax";
 import { randomArrayElement } from "./fp";
-import * as tf from "@tensorflow/tfjs-node";
-import { coordToIndex } from "./coord";
-import { checkedAccess } from "./checked-access";
+import {
+	makeGetMoveNeuralNet1Hidden,
+	makeGetMoveNeuralNet8Hidden,
+} from "./make-players";
 
 async function winRateOfA(
 	a: GetMoveFunction,
@@ -29,29 +30,6 @@ async function winRateOfA(
 	return wins / numMatches;
 }
 
-function makeGetMoveNeuralNet(model: tf.LayersModel): GetMoveFunction {
-	return async ({ board, player, legalMoves }) => {
-		const scores = await (
-			model.predict(
-				tf.tensor([board.map((cell) => cell * player)], [1, 64]),
-			) as tf.Tensor
-		).dataSync();
-
-		let move = checkedAccess(legalMoves, 0);
-		let score = -Infinity;
-		for (const currentMove of legalMoves) {
-			const index = coordToIndex(currentMove);
-			const currentScore = checkedAccess(scores, index);
-			if (currentScore > score) {
-				score = currentScore;
-				move = currentMove;
-			}
-		}
-
-		return move;
-	};
-}
-
 const getMoveRandom: GetMoveFunction = async ({ legalMoves }) => {
 	return randomArrayElement(legalMoves);
 };
@@ -64,31 +42,15 @@ const getMoveMinimax3: GetMoveFunction = async (gameState) => {
 	return getBestMove(gameState, miniMax(3, heuristicScore));
 };
 
-export async function makeGetMoveNeuralNet1Hidden() {
-	const getMoveNeuralNet1Hidden = makeGetMoveNeuralNet(
-		await tf.loadLayersModel("file://./models/1-hidden/model.json"),
-	);
-
-	return getMoveNeuralNet1Hidden;
-}
-
-export async function makeGetMoveNeuralNet8Hidden() {
-	const getMoveNeuralNet8Hidden = makeGetMoveNeuralNet(
-		await tf.loadLayersModel("file://./models/8-hidden/model.json"),
-	);
-
-	return getMoveNeuralNet8Hidden;
-}
-
-const players = {
-	getMoveMinimax2,
-	getMoveMinimax3,
-	getMoveRandom,
-	getMoveNeuralNet1Hidden: await makeGetMoveNeuralNet1Hidden(),
-	getMoveNeuralNet8Hidden: await makeGetMoveNeuralNet8Hidden(),
-};
-
 async function main() {
+	const players = {
+		getMoveMinimax2,
+		getMoveMinimax3,
+		getMoveRandom,
+		getMoveNeuralNet1Hidden: await makeGetMoveNeuralNet1Hidden(),
+		getMoveNeuralNet8Hidden: await makeGetMoveNeuralNet8Hidden(),
+	};
+
 	const winRate = await winRateOfA(
 		players.getMoveNeuralNet8Hidden,
 		players.getMoveRandom,

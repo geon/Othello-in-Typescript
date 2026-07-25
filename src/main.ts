@@ -1,12 +1,5 @@
-import {
-	Board,
-	play,
-	GetMoveFunction,
-	heuristicScore,
-	getBestMove,
-} from "./othello";
+import { Board, play, GetMoveFunction } from "./othello";
 import { Coord, coordsAreEqual, coordToIndex } from "./coord";
-import { miniMax } from "./miniMax";
 import * as tf from "@tensorflow/tfjs";
 import { checkedAccess } from "./checked-access";
 
@@ -82,17 +75,17 @@ const getMoveUser: GetMoveFunction = async ({ board, player, legalMoves }) => {
 	return printBoard(board, player, undefined, legalMoves);
 };
 
-// AI
-const getMoveMinimax: GetMoveFunction = async (gameState) => {
-	const aiMove = getBestMove(
-		gameState,
-		// 0 = easy, 1 = normal, 3 = hard, 4 = very hard.
-		miniMax(4, heuristicScore),
-	);
-	printBoard(gameState.board, gameState.player, aiMove);
-	await new Promise((res) => setTimeout(res, 200));
-	return aiMove;
-};
+// // AI
+// const getMoveMinimax: GetMoveFunction = async (gameState) => {
+// 	const aiMove = getBestMove(
+// 		gameState,
+// 		// 0 = easy, 1 = normal, 3 = hard, 4 = very hard.
+// 		miniMax(4, heuristicScore),
+// 	);
+// 	printBoard(gameState.board, gameState.player, aiMove);
+// 	await new Promise((res) => setTimeout(res, 200));
+// 	return aiMove;
+// };
 
 function makeGetMoveNeuralNet(model: tf.LayersModel): GetMoveFunction {
 	return async ({ board, player, legalMoves }) => {
@@ -126,14 +119,14 @@ function makeGetMoveNeuralNet(model: tf.LayersModel): GetMoveFunction {
 }
 
 async function main(): Promise<void> {
-	const getMoveNeuralNet1Hidden = makeGetMoveNeuralNet(
-		await tf.loadLayersModel("http://localhost:8080/1-hidden/model.json"),
+	const getMoveNeuralNet8Hidden = makeGetMoveNeuralNet(
+		await tf.loadLayersModel("./8-hidden/model.json"),
 	);
 
 	const players = {
 		getMoveUser,
-		getMoveMinimax,
-		getMoveNeuralNet1Hidden,
+		// getMoveMinimax,
+		getMoveNeuralNet1Hidden: getMoveNeuralNet8Hidden,
 	};
 
 	const competitors = {

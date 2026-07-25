@@ -1,12 +1,6 @@
 import { Coord, coordToIndex } from "./coord";
-import { miniMax } from "./miniMax";
-import {
-	play,
-	GameStatePlaying,
-	Cell,
-	getBestMove,
-	heuristicScore,
-} from "./othello";
+import { makeGetMoveNeuralNet8Hidden } from "./make-players";
+import { play, GameStatePlaying, Cell } from "./othello";
 import * as tf from "@tensorflow/tfjs-node";
 
 export async function* generateTrainingData(): AsyncIterableIterator<{
@@ -14,6 +8,9 @@ export async function* generateTrainingData(): AsyncIterableIterator<{
 	scores: ReadonlyArray<number>;
 }> {
 	for (;;) {
+		// Create a player from the model being trained for self-play.
+		const nnPlayer = await makeGetMoveNeuralNet8Hidden();
+
 		const steps: Array<{
 			readonly gameState: GameStatePlaying;
 			readonly move: Coord;
@@ -22,7 +19,8 @@ export async function* generateTrainingData(): AsyncIterableIterator<{
 		// Play a match, saving each move.
 		const result = await play(async (gameState) => {
 			// const movePosition = randomArrayElement(legalMoves);
-			const move = getBestMove(gameState, miniMax(2, heuristicScore));
+			// const move = getBestMove(gameState, miniMax(2, heuristicScore));
+			const move = await nnPlayer(gameState);
 			steps.push({ gameState, move });
 			return move;
 		});
