@@ -74,11 +74,5 @@ export function evaluateBoard(
 
 	const scoredMoves = miniMax(gameState, searchDepth - 1);
 
-	return getBestScore(scoredMoves);
-}
-
-function getBestScore(
-	scoredMoves: ReadonlyArray<{ readonly move: Coord; readonly score: number }>,
-): number {
 	return Math.max(...scoredMoves.map((scoredMove) => scoredMove.score));
 }
