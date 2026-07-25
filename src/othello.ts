@@ -152,12 +152,6 @@ export function getOpponent(player: Player): Player {
 	return -player as Player;
 }
 
-export function getBestScore(
-	scoredMoves: ReadonlyArray<{ readonly move: Coord; readonly score: number }>,
-): number {
-	return Math.max(...scoredMoves.map((scoredMove) => scoredMove.score));
-}
-
 export function getPieceBalance({
 	board,
 	player,

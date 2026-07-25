@@ -3,7 +3,6 @@ import {
 	GameState,
 	GameStatePlaying,
 	doMove,
-	getBestScore,
 	getPieceBalance,
 	heuristicScore,
 } from "./othello";
@@ -74,4 +73,10 @@ export function evaluateBoard(
 	}
 
 	return getBestScore(miniMax(gameState, searchDepth - 1));
+}
+
+function getBestScore(
+	scoredMoves: ReadonlyArray<{ readonly move: Coord; readonly score: number }>,
+): number {
+	return Math.max(...scoredMoves.map((scoredMove) => scoredMove.score));
 }
