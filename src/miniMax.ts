@@ -6,6 +6,7 @@ import {
 	getLegalMoves,
 	getOpponent,
 	heuristicScore,
+	makeGameState,
 } from "./othello";
 import { Coord } from "./coord";
 
@@ -66,7 +67,12 @@ export function evaluateBoard(
 		// The max depth is reached. Use simple heuristics.
 		const moveListPlayer = getLegalMoves(board, player);
 		return (
-			heuristicScore({ board, player }) +
+			heuristicScore(
+				makeGameState({
+					board,
+					player,
+				}),
+			) +
 			(moveListPlayer ? moveListPlayer.length : 0) -
 			(moveListOpponent ? moveListOpponent.length : 0)
 		);

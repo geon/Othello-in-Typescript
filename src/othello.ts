@@ -10,6 +10,16 @@ export type GameState = {
 	// readonly legalMoves: ReadonlyArray<Coord> | undefined;
 };
 
+export function makeGameState({
+	board,
+	player,
+}: Pick<GameState, "board" | "player">): GameState {
+	return {
+		board,
+		player,
+	};
+}
+
 // List-format:
 //  Every list is a number[64] where the first element tells how long the list is.
 //  For example, the first list generated will be: {4, 19, 29, 34, 44, ... }, where the rest of the list is irrelevant.
@@ -181,11 +191,11 @@ export function doMove(
 		}
 	}
 
-	return {
+	return makeGameState({
 		board: newBoard,
 		// Switch player.
 		player: getOpponent(player),
-	};
+	});
 }
 
 export const startBoard: Board = [
@@ -207,10 +217,10 @@ export type GetMoveFunction = (
 export async function play(
 	getMove: GetMoveFunction,
 ): Promise<{ readonly board: Board; readonly winner: Player | undefined }> {
-	let gameState: GameState = {
+	let gameState = makeGameState({
 		board: startBoard,
 		player: 1,
-	};
+	});
 
 	for (;;) {
 		let legalMoves = getLegalMoves(gameState.board, gameState.player);
