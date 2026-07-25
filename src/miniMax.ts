@@ -13,12 +13,12 @@ export function getBestMove(
 	// 0 = easy, 1 = normal, 3 = hard, 4 = very hard.
 	smartness: number = 4,
 ): Coord {
-	const scoredMoves = miniMax(gameState, smartness);
-
 	const firstLegalMove = gameState.legalMoves[0];
 	if (!firstLegalMove) {
 		throw new Error("Missing firstLegalMove.");
 	}
+
+	const scoredMoves = miniMax(gameState, smartness);
 
 	let bestScore = -Infinity;
 	let bestMoves = [firstLegalMove];
