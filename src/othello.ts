@@ -134,7 +134,7 @@ const heuristicScores: ReadonlyArray<number> = [
 	...[8, -4, 6, 4, 4, 6, -4, 8],
 ];
 
-export function heuristicScore(board: Board, player: Player): number {
+export function heuristicScore({ board, player }: GameState): number {
 	let score = 0;
 
 	// Reward the player if he has more (weighted) pieces than the opponent.
@@ -200,16 +200,21 @@ export type GetMoveFunction = (
 export async function play(
 	getMove: GetMoveFunction,
 ): Promise<{ readonly board: Board; readonly winner: Player | undefined }> {
-	let player: Player = 1;
-	let board = startBoard;
+	let gameState: GameState = {
+		board: startBoard,
+		player: 1,
+	};
 
 	for (;;) {
-		let legalMoves = getLegalMoves(board, player);
+		let legalMoves = getLegalMoves(gameState.board, gameState.player);
 
 		// If no legal moves, switch player.
 		if (!legalMoves) {
-			player = getOpponent(player);
-			legalMoves = getLegalMoves(board, player);
+			gameState = {
+				board: gameState.board,
+				player: getOpponent(gameState.player),
+			};
+			legalMoves = getLegalMoves(gameState.board, gameState.player);
 
 			// If none of the players have lagal moves, game over.
 			if (!legalMoves) {
@@ -218,21 +223,23 @@ export async function play(
 		}
 
 		// Pick a move.
-		let movePosition = await getMove({ board, player }, legalMoves);
+		let movePosition = await getMove(gameState, legalMoves);
 
-		// Make the move.
-		board = doMove({ board, player }, movePosition);
+		gameState = {
+			// Make the move.
+			board: doMove(gameState, movePosition),
+			// Switch player.
+			player: getOpponent(gameState.player),
+		};
 
-		// Switch player.
-		player = getOpponent(player);
-		legalMoves = getLegalMoves(board, player);
+		legalMoves = getLegalMoves(gameState.board, gameState.player);
 	}
 
-	const score = board.reduce<number>((sum, piece) => sum + piece, 0);
+	const score = gameState.board.reduce<number>((sum, piece) => sum + piece, 0);
 	const winner = score === 0 ? undefined : score > 0 ? 1 : -1;
 
 	return {
-		board,
+		board: gameState.board,
 		winner,
 	};
 }
