@@ -70,13 +70,13 @@ function printBoard(
 }
 
 // User.
-const getMoveUser: GetMoveFunction = async ({ board, player }, legalMoves) => {
+const getMoveUser: GetMoveFunction = async ({ board, player, legalMoves }) => {
 	return printBoard(board, player, undefined, legalMoves);
 };
 
 // AI
-const getMoveMinimax: GetMoveFunction = async (gameState, legalMoves) => {
-	const aiMove = getBestMove(gameState, legalMoves);
+const getMoveMinimax: GetMoveFunction = async (gameState) => {
+	const aiMove = getBestMove(gameState);
 	printBoard(gameState.board, gameState.player, aiMove);
 	await new Promise((res) => setTimeout(res, 200));
 	return aiMove;
@@ -93,8 +93,8 @@ async function main(): Promise<void> {
 		"-1": players.getMoveMinimax,
 	};
 
-	const result = await play(async (gameState, legalMoves) => {
-		return competitors[gameState.player](gameState, legalMoves);
+	const result = await play(async (gameState) => {
+		return competitors[gameState.player](gameState);
 	});
 
 	printBoard(result.board, result.winner || 0, undefined);

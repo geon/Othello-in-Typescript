@@ -13,12 +13,15 @@ import { Coord } from "./coord";
 export function getBestMove(
 	gameState: GameState,
 	// 0 = easy, 1 = normal, 3 = hard, 4 = very hard.
-	legalMoves: ReadonlyArray<Coord>,
 	smartness: number = 4,
 ): Coord {
-	const scoredMoves = miniMax(gameState, legalMoves, smartness);
+	const scoredMoves = miniMax(gameState, smartness);
 
-	const firstLegalMove = legalMoves[0];
+	if (!gameState.legalMoves) {
+		throw new Error("Missing legalMoves.");
+	}
+
+	const firstLegalMove = gameState.legalMoves[0];
 	if (!firstLegalMove) {
 		throw new Error("Missing firstLegalMove.");
 	}
@@ -42,11 +45,14 @@ export function getBestMove(
 
 export function miniMax(
 	gameState: GameState,
-	moveListPlayer: ReadonlyArray<Coord>,
 	searchDepth: number,
 ): ReadonlyArray<{ readonly move: Coord; readonly score: number }> {
+	if (!gameState.legalMoves) {
+		throw new Error("Missing legalMoves.");
+	}
+
 	// Try the moves and score them.
-	return moveListPlayer.map((movePosition) => {
+	return gameState.legalMoves.map((movePosition) => {
 		const newGameState = doMove(gameState, movePosition);
 		const score = evaluateBoard(newGameState, searchDepth);
 		return {
@@ -85,8 +91,8 @@ export function evaluateBoard(
 				{
 					board,
 					player: opponent,
+					legalMoves: moveListOpponent,
 				},
-				moveListOpponent,
 				searchDepth - 1,
 			),
 		);
@@ -98,7 +104,14 @@ export function evaluateBoard(
 		if (moveListPlayer) {
 			// The player can move again.
 			return getBestScore(
-				miniMax({ board, player }, moveListPlayer, searchDepth - 1),
+				miniMax(
+					{
+						board,
+						player,
+						legalMoves: moveListPlayer,
+					},
+					searchDepth - 1,
+				),
 			);
 		}
 	}

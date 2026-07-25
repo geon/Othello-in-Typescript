@@ -7,16 +7,19 @@ export type Board = ReadonlyArray<Cell>;
 export type GameState = {
 	readonly board: Board;
 	readonly player: Player;
-	// readonly legalMoves: ReadonlyArray<Coord> | undefined;
+	readonly legalMoves: ReadonlyArray<Coord> | undefined;
 };
 
 export function makeGameState({
 	board,
 	player,
 }: Pick<GameState, "board" | "player">): GameState {
+	const legalMoves = getLegalMoves(board, player);
+
 	return {
 		board,
 		player,
+		legalMoves,
 	};
 }
 
@@ -209,10 +212,7 @@ export const startBoard: Board = [
 	...[0, 0, 0, 0, 0, 0, 0, 0],
 ] as Board;
 
-export type GetMoveFunction = (
-	gameState: GameState,
-	legalMoves: ReadonlyArray<Coord>,
-) => Promise<Coord>;
+export type GetMoveFunction = (gameState: GameState) => Promise<Coord>;
 
 export async function play(
 	getMove: GetMoveFunction,
@@ -223,29 +223,24 @@ export async function play(
 	});
 
 	for (;;) {
-		let legalMoves = getLegalMoves(gameState.board, gameState.player);
-
 		// If no legal moves, switch player.
-		if (!legalMoves) {
-			gameState = {
+		if (!gameState.legalMoves) {
+			gameState = makeGameState({
 				board: gameState.board,
 				player: getOpponent(gameState.player),
-			};
-			legalMoves = getLegalMoves(gameState.board, gameState.player);
+			});
 
 			// If none of the players have lagal moves, game over.
-			if (!legalMoves) {
+			if (!gameState.legalMoves) {
 				break;
 			}
 		}
 
 		// Pick a move.
-		let movePosition = await getMove(gameState, legalMoves);
+		let movePosition = await getMove(gameState);
 
 		// Make the move.
 		gameState = doMove(gameState, movePosition);
-
-		legalMoves = getLegalMoves(gameState.board, gameState.player);
 	}
 
 	const score = gameState.board.reduce<number>((sum, piece) => sum + piece, 0);
