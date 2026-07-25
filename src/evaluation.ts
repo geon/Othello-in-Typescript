@@ -31,7 +31,7 @@ async function main() {
 		//
 		gameState,
 	) => {
-		if (!gameState.legalMoves) {
+		if (gameState.type !== "playing") {
 			throw new Error("Missing legalMoves.");
 		}
 

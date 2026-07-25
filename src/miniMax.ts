@@ -1,6 +1,7 @@
 import { randomArrayElement } from "./fp";
 import {
 	GameState,
+	GameStatePlaying,
 	doMove,
 	getBestScore,
 	getPieceBalance,
@@ -9,15 +10,11 @@ import {
 import { Coord } from "./coord";
 
 export function getBestMove(
-	gameState: GameState,
+	gameState: GameStatePlaying,
 	// 0 = easy, 1 = normal, 3 = hard, 4 = very hard.
 	smartness: number = 4,
 ): Coord {
 	const scoredMoves = miniMax(gameState, smartness);
-
-	if (!gameState.legalMoves) {
-		throw new Error("Missing legalMoves.");
-	}
 
 	const firstLegalMove = gameState.legalMoves[0];
 	if (!firstLegalMove) {
@@ -42,13 +39,9 @@ export function getBestMove(
 }
 
 export function miniMax(
-	gameState: GameState,
+	gameState: GameStatePlaying,
 	searchDepth: number,
 ): ReadonlyArray<{ readonly move: Coord; readonly score: number }> {
-	if (!gameState.legalMoves) {
-		throw new Error("Missing legalMoves.");
-	}
-
 	// Try the moves and score them.
 	return gameState.legalMoves.map((move) => {
 		const newGameState = doMove(gameState, move);
@@ -67,17 +60,17 @@ export function evaluateBoard(
 	gameState: GameState,
 	searchDepth: number,
 ): number {
-	if (searchDepth <= 1) {
-		// The max depth is reached. Use simple heuristics.
-		return heuristicScore(gameState);
-	}
-
-	if (!gameState.legalMoves) {
+	if (gameState.type === "game-over") {
 		// Noone can move. Game over.
 
 		// TODO: Make the AI prioritize the greatest win, not just any win.
 		// Reward the winner.
 		return Math.sign(getPieceBalance(gameState)) * Infinity;
+	}
+
+	if (searchDepth <= 1) {
+		// The max depth is reached. Use simple heuristics.
+		return heuristicScore(gameState);
 	}
 
 	return getBestScore(miniMax(gameState, searchDepth - 1));

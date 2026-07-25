@@ -4,11 +4,21 @@ export type Player = -1 | 1;
 export type Cell = Player | 0;
 export type Board = ReadonlyArray<Cell>;
 
-export type GameState = {
+export type GameStateBase = {
 	readonly board: Board;
 	readonly player: Player;
-	readonly legalMoves: ReadonlyArray<Coord> | undefined;
 };
+
+export type GameStatePlaying = GameStateBase & {
+	readonly type: "playing";
+	readonly legalMoves: ReadonlyArray<Coord>;
+};
+
+export type GameStateGameOver = GameStateBase & {
+	readonly type: "game-over";
+};
+
+export type GameState = GameStatePlaying | GameStateGameOver;
 
 export function makeGameState({
 	board,
@@ -22,11 +32,18 @@ export function makeGameState({
 		legalMoves = getLegalMoves(board, player);
 	}
 
-	return {
-		board,
-		player,
-		legalMoves,
-	};
+	const base = { board, player };
+	return !legalMoves
+		? {
+				...base,
+				// If none of the players have lagal moves, game over.
+				type: "game-over",
+			}
+		: {
+				...base,
+				type: "playing",
+				legalMoves,
+			};
 }
 
 // List-format:
@@ -170,7 +187,7 @@ export function heuristicScore({
 	board,
 	player,
 	legalMoves: moveListPlayer,
-}: GameState): number {
+}: GameStatePlaying): number {
 	let score = 0;
 
 	// Reward the player if he has more (weighted) pieces than the opponent.
@@ -243,7 +260,7 @@ export const startBoard: Board = [
 	...[0, 0, 0, 0, 0, 0, 0, 0],
 ] as Board;
 
-export type GetMoveFunction = (gameState: GameState) => Promise<Coord>;
+export type GetMoveFunction = (gameState: GameStatePlaying) => Promise<Coord>;
 
 export async function play(
 	getMove: GetMoveFunction,
@@ -254,8 +271,7 @@ export async function play(
 	});
 
 	for (;;) {
-		// If none of the players have lagal moves, game over.
-		if (!gameState.legalMoves) {
+		if (gameState.type === "game-over") {
 			break;
 		}
 
