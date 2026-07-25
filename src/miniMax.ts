@@ -72,7 +72,9 @@ export function evaluateBoard(
 		return heuristicScore(gameState);
 	}
 
-	return getBestScore(miniMax(gameState, searchDepth - 1));
+	const scoredMoves = miniMax(gameState, searchDepth - 1);
+
+	return getBestScore(scoredMoves);
 }
 
 function getBestScore(
