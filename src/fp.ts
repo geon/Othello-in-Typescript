@@ -5,3 +5,27 @@ export function randomArrayElement<T>(array: ReadonlyArray<T>): T {
 	}
 	return element;
 }
+
+export function indexOfMinBy<T>(
+	array: ReadonlyArray<T>,
+	accessor: (value: T) => number,
+): number | undefined {
+	let min = Number.POSITIVE_INFINITY;
+	let minIndex = undefined;
+
+	for (const [index, value] of array.map(accessor).entries()) {
+		if (value < min) {
+			min = value;
+			minIndex = index;
+		}
+	}
+
+	return minIndex;
+}
+
+export function minBy<T>(
+	array: ReadonlyArray<T>,
+	accessor: (value: T) => number,
+): T | undefined {
+	return array[indexOfMinBy(array, accessor) ?? 0];
+}
