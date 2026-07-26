@@ -4,15 +4,15 @@ import { models } from "./models";
 import {
 	play,
 	Cell,
-	doMove,
 	makeGameState,
 	GameState,
 	Board,
 	Player,
+	EvaluateBoard,
 } from "./othello";
 import * as tf from "@tensorflow/tfjs-node";
 import { checkedAccess } from "./checked-access";
-import { sum } from "./fp";
+import { miniMax } from "./miniMax";
 
 type BoardScore = {
 	readonly board: Board;
@@ -28,6 +28,22 @@ function normalizeBoardScore(
 	return {
 		board: normalizedBoard,
 		score: boardScore.score * player,
+	};
+}
+
+function getModelRunner(model: tf.LayersModel): EvaluateBoard {
+	return (gameState) => {
+		// The model only handles boards from the pl1 pov.
+		const normalizedBoard = gameState.board.map(
+			(cell) => (cell * gameState.player) as Cell,
+		);
+
+		return checkedAccess(
+			(
+				model.predict(tf.tensor([normalizedBoard], [1, 64])) as tf.Tensor
+			).dataSync(),
+			0,
+		);
 	};
 }
 
@@ -71,18 +87,7 @@ export async function* generateTrainingData(
 				continue;
 			}
 
-			const legalMoveScores = step.legalMoves
-				.map((legalMove) => doMove(step, legalMove))
-				.map(({ board }) =>
-					checkedAccess(
-						(
-							model.predict(tf.tensor([board], [1, 64])) as tf.Tensor
-						).dataSync(),
-						0,
-					),
-				);
-
-			const score = sum(legalMoveScores) / legalMoveScores.length;
+			const score = miniMax(1, getModelRunner(model))(step);
 
 			yield normalizeBoardScore(
 				{
