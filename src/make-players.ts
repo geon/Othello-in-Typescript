@@ -20,16 +20,23 @@ export function makeGetMoveNeuralNet(model: tf.LayersModel): GetMoveFunction {
 			doMove(gameState, legalMove),
 		);
 
-		const legalMoveScores = gameStatesAfterMoves.map(({ board }) =>
-			checkedAccess(
-				(
-					model.predict(
-						tf.tensor([board.map((cell) => cell * gameState.player)], [1, 64]),
-					) as tf.Tensor
-				).dataSync(),
-				0,
-			),
-		);
+		const legalMoveScores = gameStatesAfterMoves
+			.map(({ board }) =>
+				checkedAccess(
+					(
+						model.predict(
+							tf.tensor(
+								[board.map((cell) => cell * gameState.player)],
+								[1, 64],
+							),
+						) as tf.Tensor
+					).dataSync(),
+					0,
+				),
+			)
+			.map((score) => (isNaN(score) ? 0 : score));
+
+		console.log(legalMoveScores);
 
 		const temperature = 0.01;
 		const index = checkedAccess(
