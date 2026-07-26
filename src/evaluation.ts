@@ -48,6 +48,13 @@ async function main() {
 		return getBestMove(gameState, miniMax(2, heuristicScore));
 	};
 
+	const getMoveMinimax3: GetMoveFunction = async (
+		//
+		gameState,
+	) => {
+		return getBestMove(gameState, miniMax(3, heuristicScore));
+	};
+
 	function makeGetMoveNeuralNet(model: tf.LayersModel): GetMoveFunction {
 		return async ({ board, player, legalMoves }) => {
 			const scores = await (
@@ -81,6 +88,7 @@ async function main() {
 
 	const players = {
 		getMoveMinimax2,
+		getMoveMinimax3,
 		getMoveRandom,
 		getMoveNeuralNet1Hidden,
 		getMoveNeuralNet8Hidden,
