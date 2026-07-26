@@ -46,7 +46,7 @@ function evaluateMove(
 	return (newGameState.player === gameState.player ? 1 : -1) * score;
 }
 
-export function evaluateBoard(
+export function miniMax(
 	gameState: GameStatePlaying,
 	searchDepth: number,
 ): number {
@@ -58,7 +58,7 @@ export function evaluateBoard(
 	return Math.max(
 		...gameState.legalMoves.map((move) =>
 			evaluateMove(gameState, move, (gameState) =>
-				evaluateBoard(gameState, searchDepth - 1),
+				miniMax(gameState, searchDepth - 1),
 			),
 		),
 	);

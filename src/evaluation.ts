@@ -43,7 +43,7 @@ async function main() {
 		gameState,
 	) => {
 		return MiniMax.getBestMove(gameState, (gameState) =>
-			MiniMax.evaluateBoard(gameState, 2),
+			MiniMax.miniMax(gameState, 2),
 		);
 	};
 
