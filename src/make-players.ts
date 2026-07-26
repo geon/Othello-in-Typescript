@@ -1,30 +1,45 @@
 import * as tf from "@tensorflow/tfjs";
 import { checkedAccess } from "./checked-access";
-import { getBestMove, GetMoveFunction, heuristicScore } from "./othello";
-import { coordToIndex } from "./coord";
+import {
+	doMove,
+	getBestMove,
+	GetMoveFunction,
+	heuristicScore,
+} from "./othello";
 import { randomArrayElement } from "./fp";
 import { miniMax } from "./miniMax";
 
 export function makeGetMoveNeuralNet(model: tf.LayersModel): GetMoveFunction {
-	return async ({ board, player, legalMoves }) => {
-		const scores = await (
-			model.predict(
-				tf.tensor([board.map((cell) => cell * player)], [1, 64]),
-			) as tf.Tensor
-		).dataSync();
-
-		let move = checkedAccess(legalMoves, 0);
-		let score = -Infinity;
-		for (const currentMove of legalMoves) {
-			const index = coordToIndex(currentMove);
-			const currentScore = checkedAccess(scores, index);
-			if (currentScore > score) {
-				score = currentScore;
-				move = currentMove;
-			}
+	return async (gameState) => {
+		// tf.multinomial requires >1 elements.
+		if (gameState.legalMoves.length === 1) {
+			return checkedAccess(gameState.legalMoves, 0);
 		}
 
-		return move;
+		const gameStatesAfterMoves = gameState.legalMoves.map((legalMove) =>
+			doMove(gameState, legalMove),
+		);
+
+		const legalMoveScores = gameStatesAfterMoves.map(({ board }) =>
+			checkedAccess(
+				(
+					model.predict(
+						tf.tensor([board.map((cell) => cell * gameState.player)], [1, 64]),
+					) as tf.Tensor
+				).dataSync(),
+				0,
+			),
+		);
+
+		const temperature = 0.01;
+		const index = checkedAccess(
+			tf
+				.multinomial(tf.tensor1d(legalMoveScores).div(temperature), 1)
+				.dataSync(),
+			0,
+		);
+
+		return checkedAccess(gameState.legalMoves, index);
 	};
 }
 

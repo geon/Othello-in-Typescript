@@ -29,3 +29,7 @@ export function minBy<T>(
 ): T | undefined {
 	return array[indexOfMinBy(array, accessor) ?? 0];
 }
+
+export function sum(array: readonly number[]): number {
+	return array.reduce((a, b) => a + b, 0);
+}

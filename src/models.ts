@@ -15,7 +15,7 @@ export const models = {
 				layers: [
 					tf.layers.dense({ units: 64, activation: "tanh", inputShape: [64] }),
 					tf.layers.dense({ units: 64, activation: "tanh" }),
-					tf.layers.dense({ units: 64, activation: "tanh" }),
+					tf.layers.dense({ units: 1, activation: "tanh" }),
 				],
 			}),
 	},
@@ -34,7 +34,7 @@ export const models = {
 					tf.layers.dense({ units: 64, activation: "tanh" }),
 					tf.layers.dense({ units: 64, activation: "tanh" }),
 					tf.layers.dense({ units: 64, activation: "tanh" }),
-					tf.layers.dense({ units: 64, activation: "tanh" }),
+					tf.layers.dense({ units: 1, activation: "tanh" }),
 				],
 			}),
 	},
