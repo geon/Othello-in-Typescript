@@ -1,17 +1,8 @@
-import { makeGetMoveNeuralNet } from "./make-players";
+import { getModelRunner, makeGetMoveNeuralNet } from "./make-players";
 import { getTfModel } from "./models-node";
 import { models } from "./models";
-import {
-	play,
-	Cell,
-	makeGameState,
-	GameState,
-	Board,
-	Player,
-	EvaluateBoard,
-} from "./othello";
+import { play, Cell, makeGameState, GameState, Board, Player } from "./othello";
 import * as tf from "@tensorflow/tfjs-node";
-import { checkedAccess } from "./checked-access";
 import { miniMax } from "./miniMax";
 
 type BoardScore = {
@@ -28,22 +19,6 @@ function normalizeBoardScore(
 	return {
 		board: normalizedBoard,
 		score: boardScore.score * player,
-	};
-}
-
-function getModelRunner(model: tf.LayersModel): EvaluateBoard {
-	return (gameState) => {
-		// The model only handles boards from the pl1 pov.
-		const normalizedBoard = gameState.board.map(
-			(cell) => (cell * gameState.player) as Cell,
-		);
-
-		return checkedAccess(
-			(
-				model.predict(tf.tensor([normalizedBoard], [1, 64])) as tf.Tensor
-			).dataSync(),
-			0,
-		);
 	};
 }
 

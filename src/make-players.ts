@@ -1,7 +1,8 @@
 import * as tf from "@tensorflow/tfjs";
 import { checkedAccess } from "./checked-access";
 import {
-	doMove,
+	Cell,
+	EvaluateBoard,
 	getBestMove,
 	GetMoveFunction,
 	heuristicScore,
@@ -9,45 +10,25 @@ import {
 import { randomArrayElement } from "./fp";
 import { miniMax } from "./miniMax";
 
-export function makeGetMoveNeuralNet(model: tf.LayersModel): GetMoveFunction {
-	return async (gameState) => {
-		// tf.multinomial requires >1 elements.
-		if (gameState.legalMoves.length === 1) {
-			return checkedAccess(gameState.legalMoves, 0);
-		}
-
-		const gameStatesAfterMoves = gameState.legalMoves.map((legalMove) =>
-			doMove(gameState, legalMove),
+export function getModelRunner(model: tf.LayersModel): EvaluateBoard {
+	return (gameState) => {
+		// The model only handles boards from the pl1 pov.
+		const normalizedBoard = gameState.board.map(
+			(cell) => (cell * gameState.player) as Cell,
 		);
 
-		const legalMoveScores = gameStatesAfterMoves
-			.map(({ board }) =>
-				checkedAccess(
-					(
-						model.predict(
-							tf.tensor(
-								[board.map((cell) => cell * gameState.player)],
-								[1, 64],
-							),
-						) as tf.Tensor
-					).dataSync(),
-					0,
-				),
-			)
-			.map((score) => (isNaN(score) ? 0 : score));
-
-		console.log(legalMoveScores);
-
-		const temperature = 0.01;
-		const index = checkedAccess(
-			tf
-				.multinomial(tf.tensor1d(legalMoveScores).div(temperature), 1)
-				.dataSync(),
+		return checkedAccess(
+			(
+				model.predict(tf.tensor([normalizedBoard], [1, 64])) as tf.Tensor
+			).dataSync(),
 			0,
 		);
-
-		return checkedAccess(gameState.legalMoves, index);
 	};
+}
+
+export function makeGetMoveNeuralNet(model: tf.LayersModel): GetMoveFunction {
+	return (gameState) =>
+		Promise.resolve(getBestMove(gameState, getModelRunner(model)));
 }
 
 export const getMoveRandom: GetMoveFunction = async ({ legalMoves }) => {
