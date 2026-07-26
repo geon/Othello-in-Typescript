@@ -46,20 +46,17 @@ function evaluateMove(
 	return (newGameState.player === gameState.player ? 1 : -1) * score;
 }
 
-export function miniMax(
-	gameState: GameStatePlaying,
-	searchDepth: number,
-): number {
-	if (searchDepth <= 1) {
-		// The max depth is reached. Use simple heuristics.
-		return heuristicScore(gameState);
-	}
+export function miniMax(searchDepth: number): EvaluateBoard {
+	return (gameState) => {
+		if (searchDepth <= 1) {
+			// The max depth is reached. Use simple heuristics.
+			return heuristicScore(gameState);
+		}
 
-	return Math.max(
-		...gameState.legalMoves.map((move) =>
-			evaluateMove(gameState, move, (gameState) =>
-				miniMax(gameState, searchDepth - 1),
+		return Math.max(
+			...gameState.legalMoves.map((move) =>
+				evaluateMove(gameState, move, miniMax(searchDepth - 1)),
 			),
-		),
-	);
+		);
+	};
 }

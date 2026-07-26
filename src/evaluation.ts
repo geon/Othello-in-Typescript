@@ -42,9 +42,7 @@ async function main() {
 		//
 		gameState,
 	) => {
-		return MiniMax.getBestMove(gameState, (gameState) =>
-			MiniMax.miniMax(gameState, 2),
-		);
+		return MiniMax.getBestMove(gameState, MiniMax.miniMax(2));
 	};
 
 	const players = {

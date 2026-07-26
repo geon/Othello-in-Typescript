@@ -76,9 +76,10 @@ const getMoveUser: GetMoveFunction = async ({ board, player, legalMoves }) => {
 
 // AI
 const getMoveMinimax: GetMoveFunction = async (gameState) => {
-	const aiMove = getBestMove(gameState, (gameState) =>
+	const aiMove = getBestMove(
+		gameState,
 		// 0 = easy, 1 = normal, 3 = hard, 4 = very hard.
-		miniMax(gameState, 4),
+		miniMax(4),
 	);
 	printBoard(gameState.board, gameState.player, aiMove);
 	await new Promise((res) => setTimeout(res, 200));
