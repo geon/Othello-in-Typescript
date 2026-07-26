@@ -161,7 +161,16 @@ export function heuristicScore({ board, player }: GameState): number {
 		score += heuristicScores[i]! * player * board[i]!;
 	}
 
-	return score;
+	const moveListPlayer = getLegalMoves(board, player);
+
+	const opponent = getOpponent(player);
+	const moveListOpponent = getLegalMoves(board, opponent);
+
+	return (
+		score -
+		(moveListOpponent ? moveListOpponent.length : 0) +
+		(moveListPlayer ? moveListPlayer.length : 0)
+	);
 }
 
 // Make shure you MAY move before you call this function.

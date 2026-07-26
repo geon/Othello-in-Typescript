@@ -71,16 +71,11 @@ export function evaluateBoard(
 
 	if (searchDepth <= 1) {
 		// The max depth is reached. Use simple heuristics.
-		const moveListOpponent = getLegalMoves(board, opponent);
-		return (
-			heuristicScore(
-				makeGameState({
-					board,
-					player: opponent,
-				}),
-			) +
-			(moveListOpponent ? moveListOpponent.length : 0) -
-			(moveListPlayer ? moveListPlayer.length : 0)
+		return heuristicScore(
+			makeGameState({
+				board,
+				player: opponent,
+			}),
 		);
 	}
 
