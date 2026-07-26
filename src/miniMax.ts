@@ -19,10 +19,11 @@ export function getBestMove(
 	}
 
 	// Randomly pick one of the highest scoring moves.
-	return minBy(gameState.legalMoves, (move) => {
-		const score = evaluateMove(gameState, move, smartness);
-		return -(score + Math.random() * 0.01);
-	})!;
+	return minBy(
+		gameState.legalMoves,
+		(move) =>
+			-(evaluateMove(gameState, move, smartness) + Math.random() * 0.01),
+	)!;
 }
 
 export function miniMax(
