@@ -1,9 +1,12 @@
-import { play, GetMoveFunction, heuristicScore, getBestMove } from "./othello";
-import { miniMax } from "./miniMax";
-import { randomArrayElement } from "./fp";
+import { play, GetMoveFunction } from "./othello";
 import { models } from "./models";
 import { getTfModel } from "./models-node";
-import { makeGetMoveNeuralNet } from "./make-players";
+import {
+	getMoveMinimax2,
+	getMoveMinimax3,
+	getMoveRandom,
+	makeGetMoveNeuralNet,
+} from "./make-players";
 
 async function winRateOfA(
 	a: GetMoveFunction,
@@ -28,18 +31,6 @@ async function winRateOfA(
 
 	return wins / numMatches;
 }
-
-const getMoveRandom: GetMoveFunction = async ({ legalMoves }) => {
-	return randomArrayElement(legalMoves);
-};
-
-const getMoveMinimax2: GetMoveFunction = async (gameState) => {
-	return getBestMove(gameState, miniMax(2, heuristicScore));
-};
-
-const getMoveMinimax3: GetMoveFunction = async (gameState) => {
-	return getBestMove(gameState, miniMax(3, heuristicScore));
-};
 
 async function main() {
 	const players = {
