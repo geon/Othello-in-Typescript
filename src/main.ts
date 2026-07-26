@@ -1,4 +1,4 @@
-import { Board, play, GetMoveFunction } from "./othello";
+import { Board, play, GetMoveFunction, heuristicScore } from "./othello";
 import { Coord, coordsAreEqual, coordToIndex } from "./coord";
 import { miniMax, getBestMove } from "./miniMax";
 
@@ -79,7 +79,7 @@ const getMoveMinimax: GetMoveFunction = async (gameState) => {
 	const aiMove = getBestMove(
 		gameState,
 		// 0 = easy, 1 = normal, 3 = hard, 4 = very hard.
-		miniMax(4),
+		miniMax(4, heuristicScore),
 	);
 	printBoard(gameState.board, gameState.player, aiMove);
 	await new Promise((res) => setTimeout(res, 200));

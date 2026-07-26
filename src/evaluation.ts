@@ -1,4 +1,4 @@
-import { play, GetMoveFunction } from "./othello";
+import { play, GetMoveFunction, heuristicScore } from "./othello";
 import * as MiniMax from "./miniMax";
 import { randomArrayElement } from "./fp";
 
@@ -42,7 +42,7 @@ async function main() {
 		//
 		gameState,
 	) => {
-		return MiniMax.getBestMove(gameState, MiniMax.miniMax(2));
+		return MiniMax.getBestMove(gameState, MiniMax.miniMax(2, heuristicScore));
 	};
 
 	const players = {
