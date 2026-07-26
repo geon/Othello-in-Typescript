@@ -32,14 +32,12 @@ export function getBestMove(
 
 export function miniMax(
 	gameState: GameStatePlaying,
-	searchDepth: number,
+	evaluateBoard: EvaluateBoard,
 ): number {
 	// Try the moves and score them.
 	return Math.max(
 		...gameState.legalMoves.map((move) =>
-			evaluateMove(gameState, move, (gameState) =>
-				evaluateBoard(gameState, searchDepth),
-			),
+			evaluateMove(gameState, move, evaluateBoard),
 		),
 	);
 }
@@ -71,5 +69,7 @@ export function evaluateBoard(
 		return heuristicScore(gameState);
 	}
 
-	return miniMax(gameState, searchDepth - 1);
+	return miniMax(gameState, (gameState) =>
+		evaluateBoard(gameState, searchDepth - 1),
+	);
 }
