@@ -178,8 +178,6 @@ const heuristicScores: ReadonlyArray<number> = [
 ];
 
 export function heuristicScore(gameState: GameStatePlaying): number {
-	const { legalMoves: moveListPlayer } = gameState;
-
 	const opponent = getOpponent(gameState.player);
 	const moveListOpponent = getLegalMoves(gameState.board, opponent);
 
@@ -194,7 +192,7 @@ export function heuristicScore(gameState: GameStatePlaying): number {
 		score -
 		//
 		(moveListOpponent?.length ?? 0) +
-		(moveListPlayer?.length ?? 0)
+		(gameState.legalMoves?.length ?? 0)
 	);
 }
 
