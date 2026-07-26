@@ -34,16 +34,25 @@ export function miniMax(
 ): ReadonlyArray<{ readonly move: Coord; readonly score: number }> {
 	// Try the moves and score them.
 	return gameState.legalMoves.map((move) => {
-		const newGameState = doMove(gameState, move);
-		const score =
-			// Inverse the scoring if the move caused the player to switch.
-			(newGameState.player === gameState.player ? 1 : -1) *
-			evaluateBoard(newGameState, searchDepth);
+		const score = evaluateMove(gameState, move, searchDepth);
 		return {
 			move,
 			score,
 		};
 	});
+}
+
+function evaluateMove(
+	gameState: GameStatePlaying,
+	move: Coord,
+	searchDepth: number,
+): number {
+	const newGameState = doMove(gameState, move);
+	// Inverse the scoring if the move caused the player to switch.
+	return (
+		(newGameState.player === gameState.player ? 1 : -1) *
+		evaluateBoard(newGameState, searchDepth)
+	);
 }
 
 export function evaluateBoard(
