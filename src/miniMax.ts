@@ -31,10 +31,9 @@ export function miniMax(
 ): number {
 	// Try the moves and score them.
 	return Math.max(
-		...gameState.legalMoves.map((move) => {
-			const score = evaluateMove(gameState, move, searchDepth);
-			return score;
-		}),
+		...gameState.legalMoves.map((move) =>
+			evaluateMove(gameState, move, searchDepth),
+		),
 	);
 }
 
