@@ -1,4 +1,3 @@
-import { randomArrayElement } from "./fp";
 import {
 	GameState,
 	GameStatePlaying,
@@ -21,20 +20,21 @@ export function getBestMove(
 	const scoredMoves = miniMax(gameState, smartness);
 
 	let bestScore = -Infinity;
-	let bestMoves = [firstLegalMove];
+	let bestMove = firstLegalMove;
 
 	// Keep track of all moves sharing the highest score.
-	for (const scoredMove of scoredMoves) {
+	for (const scoredMove of scoredMoves.map(({ move, score }) => ({
+		move,
+		// Randomly pick one of the highest scoring moves.
+		score: score + Math.random() * 0.01,
+	}))) {
 		if (scoredMove.score > bestScore) {
 			bestScore = scoredMove.score;
-			bestMoves = [scoredMove.move];
-		} else if (scoredMove.score === bestScore) {
-			bestMoves.push(scoredMove.move);
+			bestMove = scoredMove.move;
 		}
 	}
 
-	// Randomly pick one of the highest scoring moves.
-	return randomArrayElement(bestMoves);
+	return bestMove;
 }
 
 export function miniMax(
