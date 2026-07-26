@@ -44,11 +44,10 @@ function evaluateMove(
 	searchDepth: number,
 ): number {
 	const newGameState = doMove(gameState, move);
+	const score = evaluateBoard(newGameState, searchDepth);
+
 	// Inverse the scoring if the move caused the player to switch.
-	return (
-		(newGameState.player === gameState.player ? 1 : -1) *
-		evaluateBoard(newGameState, searchDepth)
-	);
+	return (newGameState.player === gameState.player ? 1 : -1) * score;
 }
 
 export function evaluateBoard(
