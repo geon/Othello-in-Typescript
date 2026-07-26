@@ -32,6 +32,10 @@ export const getMoveRandom: GetMoveFunction = async ({ legalMoves }) => {
 	return randomArrayElement(legalMoves);
 };
 
+export const getMoveMinimax1: GetMoveFunction = async (gameState) => {
+	return getBestMove(gameState, miniMax(1, heuristicScore));
+};
+
 export const getMoveMinimax2: GetMoveFunction = async (gameState) => {
 	return getBestMove(gameState, miniMax(2, heuristicScore));
 };

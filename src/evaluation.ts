@@ -2,6 +2,7 @@ import { play, GetMoveFunction } from "./othello";
 import { models } from "./models";
 import { getTfModel } from "./models-node";
 import {
+	getMoveMinimax1,
 	getMoveMinimax2,
 	getMoveMinimax3,
 	getMoveRandom,
@@ -34,6 +35,7 @@ async function winRateOfA(
 
 async function main() {
 	const players = {
+		getMoveMinimax1,
 		getMoveMinimax2,
 		getMoveMinimax3,
 		getMoveRandom,
