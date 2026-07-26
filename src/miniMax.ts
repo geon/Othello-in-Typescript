@@ -1,6 +1,5 @@
 import { minBy } from "./fp";
 import {
-	GameState,
 	GameStatePlaying,
 	doMove,
 	getPieceBalance,
@@ -44,24 +43,20 @@ function evaluateMove(
 	searchDepth: number,
 ): number {
 	const newGameState = doMove(gameState, move);
-	const score = evaluateBoard(newGameState, searchDepth);
+	const score =
+		newGameState.type === "game-over"
+			? // TODO: Make the AI prioritize the greatest win, not just any win.
+				Math.sign(getPieceBalance(gameState)) * Infinity
+			: evaluateBoard(newGameState, searchDepth);
 
 	// Inverse the scoring if the move caused the player to switch.
 	return (newGameState.player === gameState.player ? 1 : -1) * score;
 }
 
 export function evaluateBoard(
-	gameState: GameState,
+	gameState: GameStatePlaying,
 	searchDepth: number,
 ): number {
-	if (gameState.type === "game-over") {
-		// Noone can move. Game over.
-
-		// TODO: Make the AI prioritize the greatest win, not just any win.
-		// Reward the winner.
-		return Math.sign(getPieceBalance(gameState)) * Infinity;
-	}
-
 	if (searchDepth <= 1) {
 		// The max depth is reached. Use simple heuristics.
 		return heuristicScore(gameState);
