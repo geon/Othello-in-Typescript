@@ -18,16 +18,14 @@ export function getBestMove(
 		throw new Error("Missing firstLegalMove.");
 	}
 
-	const scoredMoves = gameState.legalMoves.map((move) => {
-		const score = evaluateMove(gameState, move, smartness);
-		return {
-			move,
-			score,
-		};
-	});
-
 	return minBy(
-		scoredMoves,
+		gameState.legalMoves.map((move) => {
+			const score = evaluateMove(gameState, move, smartness);
+			return {
+				move,
+				score,
+			};
+		}),
 		({ score }) =>
 			// Randomly pick one of the highest scoring moves.
 			-(score + Math.random() * 0.01),
