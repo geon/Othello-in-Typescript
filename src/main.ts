@@ -1,6 +1,12 @@
-import { Board, play, GetMoveFunction, heuristicScore } from "./othello";
+import {
+	Board,
+	play,
+	GetMoveFunction,
+	heuristicScore,
+	getBestMove,
+} from "./othello";
 import { Coord, coordsAreEqual, coordToIndex } from "./coord";
-import { miniMax, getBestMove } from "./miniMax";
+import { miniMax } from "./miniMax";
 
 function printBoard(
 	board: Board,

@@ -1,4 +1,5 @@
 import { Coord, indexToCoord, coordToIndex, addCoord, subCoord } from "./coord";
+import { minBy } from "./fp";
 
 export type Player = -1 | 1;
 export type Cell = Player | 0;
@@ -279,4 +280,43 @@ export async function play(
 		board: gameState.board,
 		winner,
 	};
+}
+
+export function getBestMove(
+	gameState: GameStatePlaying,
+	evaluateBoard: EvaluateBoard,
+): Coord {
+	const firstLegalMove = gameState.legalMoves[0];
+	if (!firstLegalMove) {
+		throw new Error("Missing firstLegalMove.");
+	}
+
+	// Randomly pick one of the highest scoring moves.
+	return minBy(
+		gameState.legalMoves,
+		(move) =>
+			-(
+				evaluateMove(gameState, move, evaluateBoard) +
+				//
+				Math.random() * 0.01
+			),
+	)!;
+}
+
+export type EvaluateBoard = (gameState: GameStatePlaying) => number;
+
+export function evaluateMove(
+	gameState: GameStatePlaying,
+	move: Coord,
+	evaluateBoard: EvaluateBoard,
+): number {
+	const newGameState = doMove(gameState, move);
+	const score =
+		newGameState.type === "game-over"
+			? // TODO: Make the AI prioritize the greatest win, not just any win.
+				Math.sign(getPieceBalance(gameState)) * Infinity
+			: evaluateBoard(newGameState);
+
+	// Inverse the scoring if the move caused the player to switch.
+	return (newGameState.player === gameState.player ? 1 : -1) * score;
 }

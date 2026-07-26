@@ -1,50 +1,8 @@
-import { minBy } from "./fp";
 import {
 	//
-	GameStatePlaying,
-	doMove,
-	getPieceBalance,
+	EvaluateBoard,
+	evaluateMove,
 } from "./othello";
-import { Coord } from "./coord";
-
-export function getBestMove(
-	gameState: GameStatePlaying,
-	evaluateBoard: EvaluateBoard,
-): Coord {
-	const firstLegalMove = gameState.legalMoves[0];
-	if (!firstLegalMove) {
-		throw new Error("Missing firstLegalMove.");
-	}
-
-	// Randomly pick one of the highest scoring moves.
-	return minBy(
-		gameState.legalMoves,
-		(move) =>
-			-(
-				evaluateMove(gameState, move, evaluateBoard) +
-				//
-				Math.random() * 0.01
-			),
-	)!;
-}
-
-type EvaluateBoard = (gameState: GameStatePlaying) => number;
-
-function evaluateMove(
-	gameState: GameStatePlaying,
-	move: Coord,
-	evaluateBoard: EvaluateBoard,
-): number {
-	const newGameState = doMove(gameState, move);
-	const score =
-		newGameState.type === "game-over"
-			? // TODO: Make the AI prioritize the greatest win, not just any win.
-				Math.sign(getPieceBalance(gameState)) * Infinity
-			: evaluateBoard(newGameState);
-
-	// Inverse the scoring if the move caused the player to switch.
-	return (newGameState.player === gameState.player ? 1 : -1) * score;
-}
 
 export function miniMax(
 	searchDepth: number,
