@@ -178,7 +178,12 @@ const heuristicScores: ReadonlyArray<number> = [
 	...[8, -4, 6, 4, 4, 6, -4, 8],
 ];
 
-export function heuristicScore(gameState: GameStatePlaying): number {
+export function heuristicScore(gameState: GameState): number {
+	if (gameState.type === "game-over") {
+		// TODO: Make the AI prioritize the greatest win, not just any win.
+		return Math.sign(getPieceBalance(gameState)) * Infinity;
+	}
+
 	const opponent = getOpponent(gameState.player);
 	const opponentLegalMoves = getLegalMoves(gameState.board, opponent);
 
@@ -303,7 +308,7 @@ export function getBestMove(
 	)!;
 }
 
-export type EvaluateBoard = (gameState: GameStatePlaying) => number;
+export type EvaluateBoard = (gameState: GameState) => number;
 
 export function evaluateMove(
 	gameState: GameStatePlaying,
@@ -311,11 +316,7 @@ export function evaluateMove(
 	evaluateBoard: EvaluateBoard,
 ): number {
 	const newGameState = doMove(gameState, move);
-	const score =
-		newGameState.type === "game-over"
-			? // TODO: Make the AI prioritize the greatest win, not just any win.
-				Math.sign(getPieceBalance(gameState)) * Infinity
-			: evaluateBoard(newGameState);
+	const score = evaluateBoard(newGameState);
 
 	// Inverse the scoring if the move caused the player to switch.
 	return (newGameState.player === gameState.player ? 1 : -1) * score;

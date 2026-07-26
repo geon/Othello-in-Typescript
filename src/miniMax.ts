@@ -9,7 +9,7 @@ export function miniMax(
 	evaluateBoard: EvaluateBoard,
 ): EvaluateBoard {
 	return (gameState) => {
-		if (searchDepth <= 1) {
+		if (searchDepth <= 1 || gameState.type === "game-over") {
 			// The max depth is reached. Use simple heuristics.
 			return evaluateBoard(gameState);
 		}
