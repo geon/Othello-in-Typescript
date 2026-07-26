@@ -9,8 +9,7 @@ import { Coord } from "./coord";
 
 export function getBestMove(
 	gameState: GameStatePlaying,
-	// 0 = easy, 1 = normal, 3 = hard, 4 = very hard.
-	smartness: number = 4,
+	evaluateBoard: EvaluateBoard,
 ): Coord {
 	const firstLegalMove = gameState.legalMoves[0];
 	if (!firstLegalMove) {
@@ -22,9 +21,8 @@ export function getBestMove(
 		gameState.legalMoves,
 		(move) =>
 			-(
-				evaluateMove(gameState, move, (gameState) =>
-					evaluateBoard(gameState, smartness),
-				) +
+				evaluateMove(gameState, move, evaluateBoard) +
+				//
 				Math.random() * 0.01
 			),
 	)!;
