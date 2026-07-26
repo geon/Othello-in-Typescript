@@ -75,19 +75,12 @@ export async function* generateTrainingData(
 		for (const step of steps) {
 			// TODO: Also rotate and flip the board to all 8 equivalent permutations.
 
-			// If it is a known win or loss, use it.
-			if (step.type === "game-over") {
-				yield normalizeBoardScore(
-					{
-						board: step.board,
-						score: result.winner ?? 0,
-					},
-					step.player,
-				);
-				continue;
-			}
-
-			const score = miniMax(1, getModelRunner(model))(step);
+			const score =
+				step.type === "game-over"
+					? // If it is a known win or loss, use it.
+						step.player * (result.winner ?? 0)
+					: // TODO: Revise the convention for depth. 2 = eval moves one level deep. Should be 1.
+						miniMax(2, getModelRunner(model))(step);
 
 			yield normalizeBoardScore(
 				{
