@@ -1,8 +1,16 @@
-import { Board, play, GetMoveFunction } from "./othello";
+import {
+	Board,
+	play,
+	GetMoveFunction,
+	getBestMove,
+	GameStatePlaying,
+	doMove,
+} from "./othello";
 import { Coord, coordsAreEqual, coordToIndex } from "./coord";
-import { makeGetMoveNeuralNet } from "./make-players";
+import { getModelRunner } from "./make-players";
 import { getTfModel } from "./models-browser";
 import { models } from "./models";
+import { miniMax } from "./miniMax";
 
 function printBoard(
 	board: Board,
@@ -89,27 +97,31 @@ const getMoveUser: GetMoveFunction = async ({ board, player, legalMoves }) => {
 // };
 
 async function main(): Promise<void> {
-	const getMoveNeuralNet8Hidden = makeGetMoveNeuralNet(
-		await getTfModel(models._8_hidden),
-	);
+	const model = await getTfModel(models._8_hidden);
+	const getMoveNeuralNet = (gameState: GameStatePlaying) =>
+		getBestMove(gameState, miniMax(2, getModelRunner(model)));
+
+	// makeGetMoveNeuralNet(
+	// 	await getTfModel(models._8_hidden),
+	// );
 
 	const players = {
 		getMoveUser,
-		// getMoveMinimax,
-		getMoveNeuralNet1Hidden: getMoveNeuralNet8Hidden,
+		getMoveNeuralNet,
 	};
 
 	const competitors = {
 		"1": players.getMoveUser,
-		"-1": players.getMoveNeuralNet1Hidden,
+		"-1": players.getMoveNeuralNet,
 	};
 
 	const result = await play(async (gameState) => {
 		const move = await competitors[gameState.player](gameState);
+		printBoard(doMove(gameState, move).board, gameState.player, move);
+		await new Promise((res) => setTimeout(res, 0));
 
 		// -1: Opponent
 		if (gameState.player === -1) {
-			printBoard(gameState.board, gameState.player, move);
 			await new Promise((res) => setTimeout(res, 200));
 		}
 

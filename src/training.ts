@@ -36,7 +36,7 @@ async function createTrainingDataScores(
 	model: tf.LayersModel,
 ) {
 	const scores = boards.map((board, i) => {
-		if (!(i % 1000)) {
+		if (!(i % 10)) {
 			console.log(`scored boards: ${i}/${boards.length}`);
 		}
 
