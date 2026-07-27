@@ -3,89 +3,28 @@ import { getTfModel } from "./models-node";
 import { models } from "./models";
 import { play, Board, makeGameState, getPieceBalance } from "./othello";
 import * as tf from "@tensorflow/tfjs-node";
-import { readFileSync, writeFileSync } from "fs";
 import { getMirrorPermutations, invertBoard } from "./board-permutations";
 import { miniMax } from "./miniMax";
 
-export async function* generateTrainingDataBoards(
+export async function createTrainingDataBoards(
 	model: tf.LayersModel,
-): AsyncIterableIterator<Board> {
-	for (;;) {
-		// Create a player to generate data from the same model being trained.
-		const nnPlayer = makeGetMoveNeuralNet(model);
+): Promise<Board[]> {
+	// Create a player to generate data from the same model being trained.
+	const nnPlayer = makeGetMoveNeuralNet(model);
 
-		const boards: Array<Board> = [];
+	const boards: Array<Board> = [];
 
-		// Play a match, saving each move.
-		const result = await play(async (gameState) => {
-			const move = await nnPlayer(gameState);
-			boards.push(gameState.board);
-			return move;
-		});
+	// Play a match, saving each move.
+	const result = await play(async (gameState) => {
+		const move = await nnPlayer(gameState);
+		boards.push(gameState.board);
+		return move;
+	});
 
-		// Also save the game-over state.
-		boards.push(result.board);
-
-		for (const board of boards) {
-			yield board;
-		}
-	}
-}
-
-const batchSize = 1000000;
-const trainingDataBoardsPath = "training-data-boards.json";
-const trainingDataScoresPath = "training-data-scores.json";
-
-function loadTrainingDataBoards() {
-	try {
-		const boards: readonly Board[] = JSON.parse(
-			readFileSync(trainingDataBoardsPath, { encoding: "utf8" }),
-		);
-		return boards;
-	} catch {
-		return undefined;
-	}
-}
-
-async function createTrainingDataBoards(model: tf.LayersModel) {
-	const generator = generateTrainingDataBoards(model);
-
-	// The boards are inversed and mirrored, yielding 16x the original amount.
-	const numBoards = Math.floor(batchSize / 16);
-	const boards: Board[] = [];
-	for (let i = 0; i < numBoards; ++i) {
-		if (!(i % 1000)) {
-			console.log(`generated boards: ${i}/${numBoards}`);
-		}
-
-		const result = await generator.next();
-		if (result.done) {
-			throw new Error("Should never return.");
-		}
-		boards.push(result.value);
-	}
-
-	writeFileSync(
-		trainingDataBoardsPath,
-		`[\n${boards.map((sample) => JSON.stringify(sample)).join(",\n")}\n]\n`,
-	);
+	// Also save the game-over state.
+	boards.push(result.board);
 
 	return boards;
-}
-
-async function getTrainingDataBoards(model: tf.LayersModel) {
-	return loadTrainingDataBoards() ?? (await createTrainingDataBoards(model));
-}
-
-function loadTrainingDataScores() {
-	try {
-		const scores: readonly number[] = JSON.parse(
-			readFileSync(trainingDataScoresPath, { encoding: "utf8" }),
-		);
-		return scores;
-	} catch {
-		return undefined;
-	}
 }
 
 function getBoardsFromBothPovs(boards: readonly Board[]) {
@@ -116,18 +55,7 @@ async function createTrainingDataScores(
 		return score;
 	});
 
-	writeFileSync(trainingDataScoresPath, `[\n${scores.join(",\n")}\n]\n`);
-
 	return scores;
-}
-
-async function getTrainingDataScores(
-	boards: readonly Board[],
-	model: tf.LayersModel,
-) {
-	return (
-		loadTrainingDataScores() ?? (await createTrainingDataScores(boards, model))
-	);
 }
 
 type BoardScore = {
@@ -136,8 +64,8 @@ type BoardScore = {
 };
 
 async function getTrainingDataBoardScores(model: tf.LayersModel) {
-	const boards = getBoardsFromBothPovs(await getTrainingDataBoards(model));
-	const scores = await getTrainingDataScores(boards, model);
+	const boards = getBoardsFromBothPovs(await createTrainingDataBoards(model));
+	const scores = await createTrainingDataScores(boards, model);
 
 	return boards.flatMap((unMirroredBoard, index) => {
 		const score = scores[index]!;
@@ -153,31 +81,35 @@ async function getTrainingDataBoardScores(model: tf.LayersModel) {
 
 async function main() {
 	const model = models._8_hidden;
-	const tfModel = await getTfModel(model);
 
-	const trainingData = await getTrainingDataBoardScores(tfModel);
+	for (let count = 0; ; ++count) {
+		console.log(`count: ${count}`);
+		const tfModel = await getTfModel(model);
 
-	const data = tf.tensor(
-		trainingData.map((boardAndScore) => boardAndScore.board),
-		[trainingData.length, 64],
-	);
-	const labels = tf.tensor(
-		trainingData.map((boardAndScore) => boardAndScore.score),
-		[trainingData.length, 1],
-	);
+		const trainingData = await getTrainingDataBoardScores(tfModel);
 
-	const info = await tfModel.fit(data, labels, {
-		epochs: 1000,
-		batchSize: trainingData.length,
-	});
+		const data = tf.tensor(
+			trainingData.map((boardAndScore) => boardAndScore.board),
+			[trainingData.length, 64],
+		);
+		const labels = tf.tensor(
+			trainingData.map((boardAndScore) => boardAndScore.score),
+			[trainingData.length, 1],
+		);
 
-	const firstAccuracy = info.history.acc?.[0]! as number;
-	const lastAccuracy = info.history.acc?.[
-		info.history.acc?.length - 1
-	]! as number;
-	console.log("Accuracy", lastAccuracy, lastAccuracy - firstAccuracy);
+		const info = await tfModel.fit(data, labels, {
+			epochs: Math.ceil(trainingData.length / 100),
+			batchSize: trainingData.length,
+		});
 
-	await tfModel.save(model.path);
+		const firstAccuracy = info.history.acc?.[0]! as number;
+		const lastAccuracy = info.history.acc?.[
+			info.history.acc?.length - 1
+		]! as number;
+		console.log("Accuracy", lastAccuracy, lastAccuracy - firstAccuracy);
+
+		await tfModel.save(model.path);
+	}
 }
 
 main();
