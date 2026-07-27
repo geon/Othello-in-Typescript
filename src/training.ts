@@ -4,6 +4,10 @@ import { models } from "./models";
 import { play, Cell, makeGameState, GameState, Board, Player } from "./othello";
 import * as tf from "@tensorflow/tfjs-node";
 import { miniMax } from "./miniMax";
+import {
+	// readFileSync,
+	writeFileSync,
+} from "fs";
 
 type BoardScore = {
 	readonly board: Board;
@@ -68,50 +72,61 @@ export async function* generateTrainingData(
 	}
 }
 
+const trainingDataPath = "training-data.json";
+
 async function main() {
-	const model = models._8_hidden;
+	const generator = generateTrainingData(await getTfModel(models._8_hidden));
 
-	let tfModel = await getTfModel(model);
-
-	const generator = generateTrainingData(tfModel);
-
-	const batchSize = 1000;
-	for (;;) {
-		const trainingData = [];
-		for (let i = 0; i < batchSize; ++i) {
-			const result = await generator.next();
-			if (result.done) {
-				throw new Error("Should never return.");
-			}
-			trainingData.push(result.value);
+	const batchSize = 1000000;
+	const trainingData = [];
+	for (let i = 0; i < batchSize; ++i) {
+		const result = await generator.next();
+		if (result.done) {
+			throw new Error("Should never return.");
 		}
-
-		const data = tf.tensor(
-			trainingData.map((boardAnsScore) => boardAnsScore.board),
-			[batchSize, 64],
-		);
-		const labels = tf.tensor(
-			trainingData.map((boardAnsScore) => boardAnsScore.score),
-			[batchSize, 1],
-		);
-
-		const info = await tfModel.fit(data, labels, {
-			epochs: 100,
-			batchSize,
-		});
-
-		const firstAccuracy = info.history.acc?.[0]! as number;
-		const lastAccuracy = info.history.acc?.[
-			info.history.acc?.length - 1
-		]! as number;
-		console.log(
-			"Accuracy",
-			lastAccuracy.toFixed(5),
-			(lastAccuracy - firstAccuracy).toFixed(5),
-		);
-
-		await tfModel.save(model.path);
+		trainingData.push(result.value);
 	}
+
+	writeFileSync(
+		trainingDataPath,
+		`[\n${trainingData.map((sample) => JSON.stringify(sample)).join(",\n")}\n]\n`,
+	);
 }
+
+// async function main() {
+// 	const model = models._8_hidden;
+
+// 	let tfModel = await getTfModel(model);
+
+// 	const trainingData: readonly BoardScore[] = JSON.parse(
+// 		readFileSync(trainingDataPath, { encoding: "utf8" }),
+// 	);
+
+// 	const data = tf.tensor(
+// 		trainingData.map((boardAndScore) => boardAndScore.board),
+// 		[trainingData.length, 64],
+// 	);
+// 	const labels = tf.tensor(
+// 		trainingData.map((boardAndScore) => boardAndScore.score),
+// 		[trainingData.length, 1],
+// 	);
+
+// 	const info = await tfModel.fit(data, labels, {
+// 		epochs: 10000,
+// 		batchSize: trainingData.length,
+// 	});
+
+// 	const firstAccuracy = info.history.acc?.[0]! as number;
+// 	const lastAccuracy = info.history.acc?.[
+// 		info.history.acc?.length - 1
+// 	]! as number;
+// 	console.log(
+// 		"Accuracy",
+// 		lastAccuracy.toFixed(5),
+// 		(lastAccuracy - firstAccuracy).toFixed(5),
+// 	);
+
+// 	await tfModel.save(model.path);
+// }
 
 main();
