@@ -203,6 +203,7 @@ export function heuristicScore(gameState: GameState): number {
 
 // Make shure you MAY move before you call this function.
 export function doMove(
+	// TODO: GameStatePlaying
 	{ board, player }: GameState,
 	position: Coord,
 ): GameState {

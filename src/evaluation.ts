@@ -1,6 +1,53 @@
 import { play, GetMoveFunction, heuristicScore, getBestMove } from "./othello";
 import { miniMax } from "./miniMax";
 import { randomArrayElement } from "./fp";
+import * as Stochastic from "./stochastic";
+
+const times: Record<string, number> = {};
+const started: Record<string, number | null> = {};
+
+var now =
+	typeof performance !== "undefined" && performance.now
+		? function () {
+				return performance.now();
+			}
+		: function () {
+				var hr = process.hrtime();
+				return hr[0] * 1e3 + hr[1] / 1e6;
+			};
+
+function start(id: string): void {
+	if (started[id]) {
+		throw new Error("Duplicate timer start: " + id);
+	}
+	started[id] = now();
+	times[id] = times[id] || 0;
+}
+
+function stop(id: string): void {
+	if (!started[id]) {
+		throw new Error("Stopping timer that has not started: " + id);
+	}
+	times[id]! += now() - started[id];
+	started[id] = null;
+}
+
+function log() {
+	var total = times.total;
+	for (var id in times) {
+		var t = leftpad(Math.round(times[id]!).toString(), 6);
+		var p = total
+			? leftpad(((1e2 * times[id]!) / total).toFixed(2), 6) + "% "
+			: "";
+		console.log(t + "ms " + p + id);
+	}
+}
+
+function leftpad(str: string, num: number) {
+	str += "";
+	while (str.length < num) str = " " + str;
+	return str;
+}
 
 async function winRateOfA(
 	a: GetMoveFunction,
@@ -15,11 +62,16 @@ async function winRateOfA(
 	for (let i = 0; i < numMatches; ++i) {
 		if (!(i % 10)) {
 			console.log(`matches played: ${i}/${numMatches}`);
+			log();
 		}
 
 		const result = await play(async (gameState) => {
 			const getMove = players[gameState.player];
-			return getMove(gameState);
+			const playerName = gameState.player === 1 ? "a" : "b";
+			start(playerName);
+			const move = getMove(gameState);
+			stop(playerName);
+			return move;
 		});
 
 		if (result.winner === 1) {
@@ -27,6 +79,7 @@ async function winRateOfA(
 		}
 	}
 
+	log();
 	return wins / numMatches;
 }
 
@@ -49,15 +102,17 @@ async function main() {
 		return getBestMove(gameState, miniMax(3, heuristicScore));
 	};
 
+	const stochastic: GetMoveFunction = async (gameState) => {
+		return Stochastic.getBestMove(gameState, 10);
+	};
+
 	const players = {
+		stochastic,
 		getMoveMinimax3,
 		getMoveRandom,
 	};
 
-	const winRate = await winRateOfA(
-		players.getMoveMinimax3,
-		players.getMoveRandom,
-	);
+	const winRate = await winRateOfA(players.stochastic, players.getMoveRandom);
 
 	console.log("Winrate:", winRate);
 }
