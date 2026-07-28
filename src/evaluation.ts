@@ -42,20 +42,20 @@ async function main() {
 		return randomArrayElement(gameState.legalMoves);
 	};
 
-	const getMoveMinimax2: GetMoveFunction = async (
+	const getMoveMinimax3: GetMoveFunction = async (
 		//
 		gameState,
 	) => {
-		return getBestMove(gameState, miniMax(2, heuristicScore));
+		return getBestMove(gameState, miniMax(3, heuristicScore));
 	};
 
 	const players = {
-		getMoveMinimax2,
+		getMoveMinimax3,
 		getMoveRandom,
 	};
 
 	const winRate = await winRateOfA(
-		players.getMoveMinimax2,
+		players.getMoveMinimax3,
 		players.getMoveRandom,
 	);
 
