@@ -45,10 +45,13 @@ async function main() {
 		getMoveNeuralNet8Hidden: makeGetMoveNeuralNet(
 			await getTfModel(models._8_hidden),
 		),
+		getMoveNeuralNet64Hidden: makeGetMoveNeuralNet(
+			await getTfModel(models._64_hidden),
+		),
 	};
 
 	const winRate = await winRateOfA(
-		players.getMoveNeuralNet8Hidden,
+		players.getMoveNeuralNet64Hidden,
 		players.getMoveRandom,
 	);
 

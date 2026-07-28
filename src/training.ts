@@ -80,7 +80,7 @@ async function getTrainingDataBoardScores(model: tf.LayersModel) {
 }
 
 async function main() {
-	const model = models._8_hidden;
+	const model = models._64_hidden;
 
 	for (let count = 0; ; ++count) {
 		console.log(`count: ${count}`);

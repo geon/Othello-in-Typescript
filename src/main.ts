@@ -97,7 +97,7 @@ const getMoveUser: GetMoveFunction = async ({ board, player, legalMoves }) => {
 // };
 
 async function main(): Promise<void> {
-	const model = await getTfModel(models._8_hidden);
+	const model = await getTfModel(models._64_hidden);
 	const getMoveNeuralNet = (gameState: GameStatePlaying) =>
 		getBestMove(gameState, miniMax(2, getModelRunner(model)));
 
