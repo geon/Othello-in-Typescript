@@ -13,6 +13,10 @@ async function winRateOfA(
 	const numMatches = 1000;
 	let wins = 0;
 	for (let i = 0; i < numMatches; ++i) {
+		if (!(i % 10)) {
+			console.log(`matches played: ${i}/${numMatches}`);
+		}
+
 		const result = await play(async (gameState) => {
 			const getMove = players[gameState.player];
 			return getMove(gameState);
