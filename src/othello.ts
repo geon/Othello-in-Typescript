@@ -180,8 +180,7 @@ const heuristicScores: ReadonlyArray<number> = [
 
 export function heuristicScore(gameState: GameState): number {
 	if (gameState.type === "game-over") {
-		// TODO: Make the AI prioritize the greatest win, not just any win.
-		return Math.sign(getPieceBalance(gameState)) * Infinity;
+		return Math.sign(getPieceBalance(gameState)) * 100;
 	}
 
 	const opponent = getOpponent(gameState.player);
