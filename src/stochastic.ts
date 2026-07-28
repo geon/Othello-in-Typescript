@@ -5,12 +5,14 @@ import {
 	GameStatePlaying,
 	evaluateMove,
 	GameState,
+	EvaluateBoard,
 } from "./othello";
 
 export function getBestMove(
 	gameState: GameStatePlaying,
 	// 10 = easy, 100000 = hard.
-	smartness: number,
+	breadth: number,
+	depth: number,
 ): Coord {
 	// Start with all moves estimated as equal.
 	const scoredMoves = gameState.legalMoves.map(
@@ -18,7 +20,7 @@ export function getBestMove(
 	);
 
 	// Update the esimates pessimistically. Pick the best estimate and see if it can be lowered. The final highest score at least might be winnable.
-	for (let i = 0; i < smartness; ++i) {
+	for (let i = 0; i < breadth; ++i) {
 		const bestScoredMove = minBy(
 			scoredMoves,
 			(scoredMove) => -scoredMove.score,
@@ -26,7 +28,7 @@ export function getBestMove(
 
 		bestScoredMove.score = Math.min(
 			bestScoredMove.score,
-			evaluateMove(gameState, bestScoredMove.move, sampleStochastic),
+			evaluateMove(gameState, bestScoredMove.move, sampleStochastic(depth)),
 		);
 	}
 
@@ -40,12 +42,14 @@ type ScoredMove = {
 	readonly score: number;
 };
 
-function sampleStochastic(gameState: GameState): number {
-	return gameState.type === "game-over"
-		? heuristicScore(gameState)
-		: evaluateMove(
-				gameState,
-				randomArrayElement(gameState.legalMoves),
-				sampleStochastic,
-			);
+function sampleStochastic(searchDepth: number): EvaluateBoard {
+	return (gameState: GameState): number => {
+		return searchDepth <= 0 || gameState.type === "game-over"
+			? heuristicScore(gameState)
+			: evaluateMove(
+					gameState,
+					randomArrayElement(gameState.legalMoves),
+					sampleStochastic(searchDepth - 1),
+				);
+	};
 }

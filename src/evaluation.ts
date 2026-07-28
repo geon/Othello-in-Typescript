@@ -103,7 +103,7 @@ async function main() {
 	};
 
 	const stochastic: GetMoveFunction = async (gameState) => {
-		return Stochastic.getBestMove(gameState, 10);
+		return Stochastic.getBestMove(gameState, 100, 30);
 	};
 
 	const players = {
@@ -112,7 +112,7 @@ async function main() {
 		getMoveRandom,
 	};
 
-	const winRate = await winRateOfA(players.stochastic, players.getMoveRandom);
+	const winRate = await winRateOfA(players.stochastic, players.getMoveMinimax3);
 
 	console.log("Winrate:", winRate);
 }
