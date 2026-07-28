@@ -29,3 +29,19 @@ export function minBy<T>(
 ): T | undefined {
 	return array[indexOfMinBy(array, accessor) ?? 0];
 }
+
+export function sum(values: readonly number[]): number {
+	return values.reduce((a, b) => a + b, 0);
+}
+
+export function avg(values: readonly number[]): number {
+	if (values.length === 0) {
+		throw new Error("Empty array.");
+	}
+
+	return sum(values) / values.length;
+}
+
+export function interpolate(a: number, b: number, t: number): number {
+	return a + t * (b - a);
+}

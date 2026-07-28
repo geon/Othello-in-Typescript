@@ -1,3 +1,4 @@
+import { avg } from "./fp";
 import {
 	//
 	EvaluateBoard,
@@ -14,8 +15,8 @@ export function miniMax(
 			return evaluateBoard(gameState);
 		}
 
-		return Math.max(
-			...gameState.legalMoves.map((move) =>
+		return avg(
+			gameState.legalMoves.map((move) =>
 				evaluateMove(gameState, move, miniMax(searchDepth - 1, evaluateBoard)),
 			),
 		);
