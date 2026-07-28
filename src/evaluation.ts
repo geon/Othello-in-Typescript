@@ -1,6 +1,12 @@
-import { play, GetMoveFunction, heuristicScore, getBestMove } from "./othello";
-import { miniMax } from "./miniMax";
 import { randomArrayElement } from "./fp";
+import { miniMax } from "./miniMax";
+import {
+	play,
+	GetMoveFunction,
+	GameState,
+	heuristicScore,
+	getBestMove,
+} from "./othello";
 import * as Stochastic from "./stochastic";
 
 const times: Record<string, number> = {};
@@ -83,36 +89,24 @@ async function winRateOfA(
 	return wins / numMatches;
 }
 
+const getMoveRandom = async (gameState: GameState) => {
+	if (gameState.type !== "playing") {
+		throw new Error("Missing legalMoves.");
+	}
+	return randomArrayElement(gameState.legalMoves);
+};
+
+const getMoveMinimax2: GetMoveFunction = async (
+	//
+	gameState,
+) => {
+	return getBestMove(gameState, miniMax(2, heuristicScore));
+};
+
 async function main() {
-	const getMoveRandom: GetMoveFunction = async (
-		//
-		gameState,
-	) => {
-		if (gameState.type !== "playing") {
-			throw new Error("Missing legalMoves.");
-		}
-
-		return randomArrayElement(gameState.legalMoves);
-	};
-
-	const getMoveMinimax3: GetMoveFunction = async (
-		//
-		gameState,
-	) => {
-		return getBestMove(gameState, miniMax(3, heuristicScore));
-	};
-
-	const stochastic: GetMoveFunction = async (gameState) => {
-		return Stochastic.getBestMove(gameState, 100, 30);
-	};
-
-	const players = {
-		stochastic,
-		getMoveMinimax3,
-		getMoveRandom,
-	};
-
-	const winRate = await winRateOfA(players.stochastic, players.getMoveMinimax3);
+	const winRate = await winRateOfA(async (gameState) => {
+		return Stochastic.getBestMove(gameState, 30, 5);
+	}, getMoveMinimax2);
 
 	console.log("Winrate:", winRate);
 }
